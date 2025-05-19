@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "a4gBKEUidSBi6Wo+OKYpCpVcNe1jX6ZdRFdxS5Tdhi8pUMTu9gIth7xoxtHtOXa2zHEaGnKPYpeSz3wjHJAsKw==",
+  "success": true,
+  "projectFilePath": "D:\\Programs\\VSC\\Codes\\Goofin\\WebApplication1\\WebApplication1\\WebClient.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Windows\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.19.5\\microsoft.visualstudio.azure.containers.tools.targets.1.19.5.nupkg.sha512"
+  ],
+  "logs": []
+}
