@@ -1,4 +1,7 @@
-namespace WebApplication1
+using Microsoft.EntityFrameworkCore;
+using WebClient.Models;
+
+namespace WebClient
 {
     public class Program
     {
@@ -8,6 +11,8 @@ namespace WebApplication1
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddDbContext<SkuffrollDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 
