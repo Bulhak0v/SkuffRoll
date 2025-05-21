@@ -41,7 +41,7 @@ const UserProfilePage = () => {
   }, []);
 
   const handleLogout = () => {
-    alert("Logout clicked (functionality not implemented).");
+    navigate('/login');
   };
 
   const handleViewMyCharacters = () => {
