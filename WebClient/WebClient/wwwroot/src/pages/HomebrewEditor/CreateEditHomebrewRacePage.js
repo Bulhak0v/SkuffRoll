@@ -288,7 +288,7 @@ const CreateEditHomebrewRacePage = ({ mode = 'create' }) => {
 
 
         <div className="homebrew-form-actions">
-          <button type="button" className="form-button cancel" onClick={() => navigate('/homebrew/races')}>Cancel</button>
+          <button type="button" className="form-button cancel" onClick={() => navigate('/homebrew-editor/races')}>Cancel</button>
           <button type="submit" className="form-button create">{mode === 'create' ? 'Create Race' : 'Save Changes'}</button>
         </div>
       </form>
