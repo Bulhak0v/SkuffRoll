@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebClient.Models;
@@ -11,9 +12,11 @@ using WebClient.Models;
 namespace WebClient.Migrations
 {
     [DbContext(typeof(SkuffrollDbContext))]
-    partial class SkuffrollDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521161550_FinalModelsInitial")]
+    partial class FinalModelsInitial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
