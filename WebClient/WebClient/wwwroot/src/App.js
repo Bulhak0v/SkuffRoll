@@ -31,6 +31,8 @@ import HomebrewEditorMainPage from './pages/HomebrewEditor/HomebrewEditorMainPag
 import HomebrewListPage from './pages/HomebrewEditor/HomebrewListPage';
 import CreateEditHomebrewClassPage from './pages/HomebrewEditor/CreateEditHomebrewClassPage';
 import CreateEditHomebrewRacePage from './pages/HomebrewEditor/CreateEditHomebrewRacePage';
+import LoginPage from './pages/Profile/LoginPage';
+import RegisterPage from './pages/Profile/RegisterPage';
 
 const AppLayout = () => {
   const location = useLocation();
@@ -68,6 +70,8 @@ const AppLayout = () => {
         <Route path="/campaign-editor" element={<CampaignSlotsPage />} />
         <Route path="/campaign-editor/:campaignId" element={<CampaignEditorMapPage />} />
         <Route path="/profile" element={<UserProfilePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         <Route path="/game-manual/races" element={<div>Races Detail Page</div>} />
         <Route path="/game-manual/classes" element={<div>Classes Detail Page</div>} />

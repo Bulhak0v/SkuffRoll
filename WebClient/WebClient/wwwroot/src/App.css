@@ -91,6 +91,10 @@ body.game-manual-active {
   align-items: center;
 }
 
+.header-right {
+  padding-right: 100px;
+}
+
 .header-left a, .header-left button, .header-right button {
   background: none;
   border: none;
@@ -3707,6 +3711,109 @@ span.clickable-quest-name-inline:focus {
 }
 .homebrew-image-preview {
     width: 100%; height: 100%; object-fit: cover;
+}
+
+
+
+
+.auth-page {
+  flex-grow: 1;
+  padding: 40px 20px;
+  background-image: url('./assets/images/general/paper-texture.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  margin: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  font-family: 'Grenze', serif;
+  color: #111;
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 450px;
+  padding: 30px;
+  background-color: rgba(255, 255, 245, 0.7);
+  border: 1px solid #b0a090;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.auth-form-container h2 {
+  font-size: 2.2em;
+  font-weight: bold;
+  margin-bottom: 25px;
+  text-align: center;
+  color: #111;
+}
+
+.auth-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+.auth-form .form-group label {
+  font-size: 1.1em;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #111;
+}
+.auth-form .form-input {
+  padding: 10px 12px;
+  border: 1px solid #503929;
+  background-color: rgba(255, 255, 245, 0.9);
+  border-radius: 4px;
+  font-family: Arial, sans-serif;
+  font-size: 1em;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.auth-button {
+  background-color: #503929;
+  color: #f0e6d1;
+  border: 2px outset #6c5b50;
+  padding: 12px 20px;
+  font-family: 'Grenze', serif;
+  font-size: 1.3em;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  margin-top: 10px;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+  transition: background-color 0.2s, transform 0.1s;
+}
+.auth-button:hover {
+  background-color: #614a3f;
+}
+.auth-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.auth-switch-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1em;
+  color: #333;
+}
+.auth-switch-link a {
+  color: #4a3b32;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.auth-switch-link a:hover {
+  color: #7a6b52;
 }
 
 @media (max-width: 900px) {
