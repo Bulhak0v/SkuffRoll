@@ -9,16 +9,11 @@ const LoginPage = () => {
 
   useEffect(() => {
     document.body.style.backgroundImage = `url(${woodBackground})`;
-    // ... (rest of background styles)
   }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Mock login - no actual validation or auth
     alert(`Attempting login with: ${emailOrUsername} and password: ${password}. (Backend not implemented)`);
-    // In a real app, after successful login, you'd redirect to profile or dashboard
-    // For now, let's simulate going to profile as John_Doe is always "logged in"
-    // navigate('/profile'); // Or keep user on login page after alert for demo
   };
 
   return (

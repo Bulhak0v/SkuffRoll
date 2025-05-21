@@ -11,7 +11,6 @@ const RegisterPage = () => {
 
   useEffect(() => {
     document.body.style.backgroundImage = `url(${woodBackground})`;
-    // ... (rest of background styles)
   }, []);
 
   const handleRegister = (e) => {
@@ -20,11 +19,7 @@ const RegisterPage = () => {
       alert("Passwords do not match!");
       return;
     }
-    // Mock registration
     alert(`Attempting registration for: ${username} with email: ${email}. (Backend not implemented)`);
-    // In a real app, after successful registration, you might auto-login or redirect to login
-    // For now, let's redirect to login page after alert
-    // navigate('/login');
   };
 
   return (
