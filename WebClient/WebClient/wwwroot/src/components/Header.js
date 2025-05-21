@@ -60,9 +60,6 @@ const Header = () => {
       </div>
       <h1 className="site-title">{pageTitle}</h1>
       <div className="header-right">
-        <button onClick={() => alert('Menu clicked!')} title="Menu">
-        <MenuIcon />
-        </button>
       </div>
     </header>
   );
