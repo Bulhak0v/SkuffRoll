@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import woodBackground from '../../assets/images/general/wood-texture.jpg';
 import { ABILITIES, ABILITY_SHORT_NAMES, calculateModifier } from '../../data/abilityScoresData';
@@ -298,6 +298,7 @@ const CharacterCreationSummary = () => {
 
     localStorage.setItem('skuffrollCharacters', JSON.stringify(existingCharacters));
 
+    saveCharacterToBackend();
     navigate('/character-management');
   };
 
@@ -361,7 +362,31 @@ const CharacterCreationSummary = () => {
   const displayToolProf = mergeProficiencies(
     charData.proficiencies?.tools,
     charData.backgroundToolProficiencies
-  );
+    );
+
+    const saveCharacterToBackend = async () => {
+        try {
+            const response = await fetch("https://localhost:7174/api/character/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(charData),
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Server error: ${error}`);
+            }
+
+            const result = await response.json();
+            return result.characterId;
+        } catch (err) {
+            console.error("Error saving character:", err);
+            throw err;
+        }
+    };
+
 
   return (
     <main className="character-creation-page character-summary-page">

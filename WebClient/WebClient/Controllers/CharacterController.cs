@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Text.Json;
 using WebClient.Models;
+using WebClient.Models.CharData;
 
 namespace WebClient.Controllers
 {
@@ -17,66 +20,70 @@ namespace WebClient.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCharacter([FromBody] Character character, bool isFirstItemSet, List<string> selectedSkillNames)
+        public async Task<IActionResult> CreateCharacter([FromBody] JsonElement input)
         {
+            Character newCharacter = new Character();
+            string jsonString = input.GetRawText();
+            CharData charData = input.Deserialize<CharData>();
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            if (character.Class != null && !string.IsNullOrWhiteSpace(character.Class.Name))
+            if (!string.IsNullOrWhiteSpace(charData.className)) 
             {
-                var cls = await _context.Classes.FirstOrDefaultAsync(c => c.Name == character.Class.Name);
-                if (cls == null) return BadRequest($"Class '{character.Class.Name}' not found.");
-                character.ClassId = cls.Id;
-                character.Class = null;
+                Class charClass = await _context.Classes.FirstOrDefaultAsync(c => c.Name == charData.className);
+                if (charClass == null) return BadRequest($"Class '{charData.className}' not found.");
+                newCharacter.ClassId = charClass.Id;
+                newCharacter.Class = null;
             }
             else
             {
                 return BadRequest("Class is required.");
             }
 
-            if (character.Race != null && !string.IsNullOrWhiteSpace(character.Race.Name))
+            if (!string.IsNullOrWhiteSpace(charData.raceName))
             {
-                var race = await _context.Races.FirstOrDefaultAsync(r => r.Name == character.Race.Name);
-                if (race == null) return BadRequest($"Race '{character.Race.Name}' not found.");
-                character.RaceId = race.Id;
-                character.Race = null;
+                Race race = await _context.Races.FirstOrDefaultAsync(r => r.Name == charData.raceName);
+                if (race == null) return BadRequest($"Race '{charData.raceName}' not found.");
+                newCharacter.RaceId = race.Id;
+                newCharacter.Race = null;
             }
             else
             {
                 return BadRequest("Race is required.");
             }
 
-            if (character.Background != null && !string.IsNullOrWhiteSpace(character.Background.Name))
+            if (!string.IsNullOrWhiteSpace(charData.backgroundName))
             {
-                var background = await _context.Backgrounds.FirstOrDefaultAsync(b => b.Name == character.Background.Name);
-                if (background == null) return BadRequest($"Background '{character.Background.Name}' not found.");
-                character.BackgroundId = background.Id;
-                character.Background = null;
+                Background background = await _context.Backgrounds.FirstOrDefaultAsync(b => b.Name == charData.backgroundName);
+                if (background == null) return BadRequest($"Background '{charData.backgroundName}' not found.");
+                newCharacter.BackgroundId = background.Id;
+                newCharacter.Background = null;
             }
             else
             {
                 return BadRequest("Race is required.");
             }
 
-            if (character.Subrace != null && !string.IsNullOrWhiteSpace(character.Subrace.Name))
+            if (characterCreationRequest.Character.Subrace != null && !string.IsNullOrWhiteSpace(characterCreationRequest.Character.Subrace.Name))
             {
-                var subrace = await _context.Subraces.FirstOrDefaultAsync(s => s.Name == character.Subrace.Name);
-                if (subrace == null) return BadRequest($"Subrace '{character.Subrace.Name}' not found.");
-                character.SubraceId = subrace.Id;
-                character.Subrace = null;
+                var subrace = await _context.Subraces.FirstOrDefaultAsync(s => s.Name == characterCreationRequest.Character.Subrace.Name);
+                if (subrace == null) return BadRequest($"Subrace '{characterCreationRequest.Character.Subrace.Name}' not found.");
+                characterCreationRequest.Character.SubraceId = subrace.Id;
+                characterCreationRequest.Character.Subrace = null;
             }
 
-            character.Hp = 0;
-            _context.Characters.Add(character);
+            characterCreationRequest.Character.Hp = 0;
+            _context.Characters.Add(characterCreationRequest.Character);
             await _context.SaveChangesAsync();
 
-            var abilityScoreDto = character.AbilityScores.FirstOrDefault();
+            var abilityScoreDto = characterCreationRequest.Character.AbilityScores.FirstOrDefault();
             if (abilityScoreDto == null)
                 return BadRequest("Ability scores must be provided.");
 
             var abilityScores = new CharacterAbilityScore
             {
-                CharacterId = character.Id,
+                CharacterId = characterCreationRequest.Character.Id,
                 StrScore = abilityScoreDto.StrScore,
                 DexScore = abilityScoreDto.DexScore,
                 ConScore = abilityScoreDto.ConScore,
@@ -88,11 +95,11 @@ namespace WebClient.Controllers
             _context.CharacterAbilityScores.Add(abilityScores);
             await _context.SaveChangesAsync();
 
-            var selectedClass = await _context.Classes.FirstOrDefaultAsync(c => c.Id == character.ClassId);
+            var selectedClass = await _context.Classes.FirstOrDefaultAsync(c => c.Id == characterCreationRequest.Character.ClassId);
             if (selectedClass == null)
                 return BadRequest("Invalid class selected.");
 
-            var selectedSubrace = await _context.Subraces.FirstOrDefaultAsync(s => s.Id == character.ClassId);
+            var selectedSubrace = await _context.Subraces.FirstOrDefaultAsync(s => s.Id == characterCreationRequest.Character.ClassId);
             int hpSubraceBonus = 0;
             if (selectedSubrace != null && selectedSubrace.Name == "Hill Dwarf")
             {
@@ -102,44 +109,44 @@ namespace WebClient.Controllers
             int constitutionModifier = (abilityScores.ConScore - 10) / 2;
             int calculatedHp = selectedClass.StartingHp + constitutionModifier + hpSubraceBonus;
             if (calculatedHp < 1) calculatedHp = 1;
-            character.Hp = calculatedHp;
+            characterCreationRequest.Character.Hp = calculatedHp;
 
-            _context.Characters.Update(character);
+            _context.Characters.Update(characterCreationRequest.Character);
             await _context.SaveChangesAsync();
 
             var featureIds = new List<int>();
 
-            if (character.RaceId.HasValue)
+            if (characterCreationRequest.Character.RaceId.HasValue)
             {
                 var raceFeatureIds = await _context.RaceFeatures
-                    .Where(rf => rf.RaceId == character.RaceId.Value)
+                    .Where(rf => rf.RaceId == characterCreationRequest.Character.RaceId.Value)
                     .Select(rf => rf.FeatureId)
                     .ToListAsync();
                 featureIds.AddRange(raceFeatureIds);
             }
 
-            if (character.SubraceId.HasValue)
+            if (characterCreationRequest.Character.SubraceId.HasValue)
             {
                 var subraceFeatureIds = await _context.SubraceFeatures
-                    .Where(sf => sf.SubraceId == character.SubraceId.Value)
+                    .Where(sf => sf.SubraceId == characterCreationRequest.Character.SubraceId.Value)
                     .Select(sf => sf.FeatureId)
                     .ToListAsync();
                 featureIds.AddRange(subraceFeatureIds);
             }
 
-            if (character.ClassId.HasValue)
+            if (characterCreationRequest.Character.ClassId.HasValue)
             {
                 var classFeatureIds = await _context.LevelingTables
-                    .Where(cf => cf.ClassId == character.ClassId.Value)
+                    .Where(cf => cf.ClassId == characterCreationRequest.Character.ClassId.Value)
                     .Select(cf => cf.FirstTalentId)
                     .ToListAsync();
                 featureIds.AddRange((IEnumerable<int>)classFeatureIds);
             }
 
-            if (character.BackgroundId.HasValue)
+            if (characterCreationRequest.Character.BackgroundId.HasValue)
             {
                 var backgroundFeatureIds = await _context.BackgroundFeatures
-                    .Where(bf => bf.BackgroundId == character.BackgroundId.Value)
+                    .Where(bf => bf.BackgroundId == characterCreationRequest.Character.BackgroundId.Value)
                     .Select(bf => bf.FeatureId)
                     .ToListAsync();
                 featureIds.AddRange(backgroundFeatureIds);
@@ -149,7 +156,7 @@ namespace WebClient.Controllers
                 .Distinct()
                 .Select(fid => new CharacterFeature
                 {
-                    CharacterId = character.Id,
+                    CharacterId = characterCreationRequest.Character.Id,
                     FeatureId = fid
                 }).ToList();
 
@@ -158,30 +165,30 @@ namespace WebClient.Controllers
 
             List<int> classItemIds;
 
-            if (isFirstItemSet == true)
+            if (characterCreationRequest.IsFirstItemSet == true)
             {
                 classItemIds = await _context.FirstItemSets
-                    .Where(f => f.ClassId == character.ClassId)
+                    .Where(f => f.ClassId == characterCreationRequest.Character.ClassId)
                     .Select(f => f.ItemId)
                     .ToListAsync();
             }
             else
             {
                 classItemIds = await _context.SecondItemSets
-                    .Where(s => s.ClassId == character.ClassId)
+                    .Where(s => s.ClassId == characterCreationRequest.Character.ClassId)
                     .Select(s => s.ItemId)
                     .ToListAsync();
             }
 
             var backgroundItemIds = await _context.BackgroundItems
-                .Where(b => b.BackgroundId == character.BackgroundId)
+                .Where(b => b.BackgroundId == characterCreationRequest.Character.BackgroundId)
                 .Select(b => b.ItemId)
                 .ToListAsync();
 
             var allItemIds = classItemIds.Concat(backgroundItemIds).ToList();
             var characterInventoryItems = allItemIds.Select(itemId => new CharacterInventory
             {
-                CharacterId = character.Id,
+                CharacterId = characterCreationRequest.Character.Id,
                 ItemId = itemId,
                 Quantity = 1
             }).ToList();
@@ -190,13 +197,13 @@ namespace WebClient.Controllers
             await _context.SaveChangesAsync();
 
             var characterClass = await _context.Classes
-                .FirstOrDefaultAsync(c => c.Id == character.ClassId);
+                .FirstOrDefaultAsync(c => c.Id == characterCreationRequest.Character.ClassId);
 
             if (characterClass != null)
             {
                 var savingThrow = new CharacterSavingThrow
                 {
-                    CharacterId = character.Id,
+                    CharacterId = characterCreationRequest.Character.Id,
                     Str = characterClass.FirstSavingThrow == "Str" || characterClass.SecondSavingThrow == "Str",
                     Dex = characterClass.FirstSavingThrow == "Dex" || characterClass.SecondSavingThrow == "Dex",
                     Con = characterClass.FirstSavingThrow == "Con" || characterClass.SecondSavingThrow == "Con",
@@ -210,17 +217,17 @@ namespace WebClient.Controllers
             }
 
             var backgroundSkillIds = await _context.BackgroundSkills
-                .Where(bs => bs.BackgroundId == character.BackgroundId)
+                .Where(bs => bs.BackgroundId == characterCreationRequest.Character.BackgroundId)
                 .Select(bs => bs.SkillId)
                 .ToListAsync();
 
             var selectedSkillIds = await _context.Skills
-                .Where(s => selectedSkillNames.Contains(s.Name))
+                .Where(s => characterCreationRequest.SelectedSkillNames.Contains(s.Name))
                 .Select(s => s.Id)
                 .ToListAsync();
 
             var allSkillIds = backgroundSkillIds.Concat(selectedSkillIds).Distinct().ToList();
-            var characterSkill = new CharacterSkill { CharacterId = character.Id };
+            var characterSkill = new CharacterSkill { CharacterId = characterCreationRequest.Character.Id };
 
             foreach (var skillId in allSkillIds)
             {
@@ -250,7 +257,7 @@ namespace WebClient.Controllers
             _context.CharacterSkills.Add(characterSkill);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetCharacter), new { id = character.Id }, character);
+            return CreatedAtAction(nameof(GetCharacter), new { id = characterCreationRequest.Character.Id }, characterCreationRequest.Character);
         }
 
         [HttpGet("{id}")]
