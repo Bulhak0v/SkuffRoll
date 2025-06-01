@@ -2,20 +2,20 @@ namespace WebClient.Models;
 
 public class Race
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string Image { get; set; }
-    public int Speed { get; set; }
-    public string Size { get; set; }
-    public int StrIncrease { get; set; } = 0;
-    public int DexIncrease { get; set; } = 0;
-    public int ConIncrease { get; set; } = 0;
-    public int WisIncrease { get; set; } = 0;
-    public int IntIncrease { get; set; } = 0;
-    public int ChaIncrease { get; set; } = 0;
-    public bool IsOriginalContent { get; set; } = false;
-    public bool IsHomebrew { get; set; } = false;
+    public int id { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
+    public string image { get; set; }
+    public int speed { get; set; }
+    public string size { get; set; }
+    public int str_increase { get; set; } = 0;
+    public int dex_increase { get; set; } = 0;
+    public int con_increase { get; set; } = 0;
+    public int wis_increase { get; set; } = 0;
+    public int int_increase { get; set; } = 0;
+    public int cha_increase { get; set; } = 0;
+    public bool is_original_content { get; set; } = false;
+    public bool is_homebrew { get; set; } = false;
 
     public ICollection<RaceFeature> RaceFeatures { get; set; } = new List<RaceFeature>();
     public ICollection<Subrace> Subraces { get; set; } = new List<Subrace>();

@@ -2,8 +2,8 @@ namespace WebClient.Models;
 
 public class Squad
 {
-    public int EventId { get; set; }
+    public int event_id { get; set; }
     public Event Event { get; set; }
 
-    public string Image { get; set; }
+    public string image { get; set; }
 }

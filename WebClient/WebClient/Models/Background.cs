@@ -2,12 +2,12 @@ namespace WebClient.Models;
 
 public class Background
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string ToolProficiencies { get; set; }
-    public string VehicleProficiencies { get; set; }
-    public bool IsOriginalContent { get; set; } = false;
+    public int id { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
+    public string tool_proficiencies { get; set; }
+    public string vehicle_proficiencies { get; set; }
+    public bool is_original_content { get; set; } = false;
 
     public ICollection<BackgroundItem> BackgroundItems { get; set; } = new List<BackgroundItem>();
     public ICollection<BackgroundFeature> BackgroundFeatures { get; set; } = new List<BackgroundFeature>();

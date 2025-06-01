@@ -2,9 +2,9 @@ namespace WebClient.Models;
 
 public class Campaign
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public int id { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
 
     public ICollection<UserCampaign> UserCampaigns { get; set; } = new List<UserCampaign>();
     public ICollection<LoreEntry> LoreEntries { get; set; } = new List<LoreEntry>();

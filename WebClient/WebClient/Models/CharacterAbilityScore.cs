@@ -2,14 +2,14 @@ namespace WebClient.Models;
 
 public class CharacterAbilityScore
 {
-    public int Id { get; set; }
-    public int CharacterId { get; set; }
+    public int id { get; set; }
+    public int character_id { get; set; }
     public Character Character { get; set; }
 
-    public int StrScore { get; set; }
-    public int DexScore { get; set; }
-    public int ConScore { get; set; }
-    public int IntScore { get; set; }
-    public int WisScore { get; set; }
-    public int ChaScore { get; set; }
+    public int str_score { get; set; }
+    public int dex_score { get; set; }
+    public int con_score { get; set; }
+    public int int_score { get; set; }
+    public int wis_score { get; set; }
+    public int cha_score { get; set; }
 }

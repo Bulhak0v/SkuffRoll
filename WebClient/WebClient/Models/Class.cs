@@ -2,19 +2,19 @@ namespace WebClient.Models;
 
 public class Class
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string Picture { get; set; }
-    public string ArmorProficiency { get; set; }
-    public string WeaponProficiency { get; set; }
-    public string ToolProficiency { get; set; }
-    public int AmountOfProficientSkills { get; set; }
-    public string FirstSavingThrow { get; set; }
-    public string SecondSavingThrow { get; set; }
-    public int StartingHp { get; set; }
-    public bool IsOriginalContent { get; set; } = false;
-    public bool IsHomebrew { get; set; } = false;
+    public int id { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
+    public string picture { get; set; }
+    public string armor_proficiency { get; set; }
+    public string weapon_proficiency { get; set; }
+    public string tool_proficiency { get; set; }
+    public int amount_of_proficient_skills { get; set; }
+    public string first_saving_throw { get; set; }
+    public string second_saving_throw { get; set; }
+    public int starting_hp { get; set; }
+    public bool is_original_content { get; set; } = false;
+    public bool is_homebrew { get; set; } = false;
 
     public ICollection<ClassSkill> ClassSkills { get; set; } = new List<ClassSkill>();
     public ICollection<LevelingTable> LevelingTables { get; set; } = new List<LevelingTable>();

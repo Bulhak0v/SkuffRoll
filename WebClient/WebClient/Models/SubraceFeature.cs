@@ -2,9 +2,9 @@ namespace WebClient.Models;
 
 public class SubraceFeature
 {
-	public int SubraceId { get; set; }
+	public int subrace_id { get; set; }
 	public Subrace Subrace { get; set; }
 
-	public int FeatureId { get; set; }
+	public int feature_id { get; set; }
 	public Feature Feature { get; set; }
 }

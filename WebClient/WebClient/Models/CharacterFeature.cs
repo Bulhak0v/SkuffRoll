@@ -2,9 +2,9 @@ namespace WebClient.Models;
 
 public class CharacterFeature
 {
-    public int CharacterId { get; set; }
+    public int character_id { get; set; }
     public Character Character { get; set; }
 
-    public int FeatureId { get; set; }
+    public int feature_id { get; set; }
     public Feature Feature { get; set; }
 }

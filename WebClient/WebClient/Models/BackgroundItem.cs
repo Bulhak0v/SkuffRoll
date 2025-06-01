@@ -2,9 +2,9 @@ namespace WebClient.Models;
 
 public class BackgroundItem
 {
-    public int BackgroundId { get; set; }
+    public int background_id { get; set; }
     public Background Background { get; set; }
 
-    public int ItemId { get; set; }
+    public int item_id { get; set; }
     public Item Item { get; set; }
 }
