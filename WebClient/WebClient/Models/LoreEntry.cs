@@ -2,11 +2,11 @@ namespace WebClient.Models;
 
 public class LoreEntry
 {
-    public int Id { get; set; }
-    public int CampaignId { get; set; }
+    public int id { get; set; }
+    public int campaign_id { get; set; }
     public Campaign Campaign { get; set; }
 
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string Type { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
+    public string type { get; set; }
 }

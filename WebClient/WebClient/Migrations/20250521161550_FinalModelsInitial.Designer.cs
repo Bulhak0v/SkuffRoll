@@ -327,7 +327,7 @@ namespace WebClient.Migrations
                     b.Property<bool>("Dex")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("Int")
+                    b.Property<bool>("int")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("Str")
