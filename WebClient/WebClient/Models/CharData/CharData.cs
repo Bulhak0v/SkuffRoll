@@ -12,8 +12,11 @@
         public string appearance { get; set; }
         public string className { get; set; }
         public string equipmentSetChoice { get; set; }
-        public string raceName { get; set; }
+        public string race { get; set; }
         public string subrace { get; set; }
         public string backgroundName { get; set; }
+        public List<string> finalSkillProficiencies { get; set; }
+        public story story { get; set; }
+        public abilityScores abilityScores { get; set; }
     }
 }
