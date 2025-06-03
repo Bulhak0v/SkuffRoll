@@ -187,70 +187,33 @@ const CreateEditHomebrewClassPage = ({ mode = 'create' }) => {
             storedItems.push(dataToSave);
         }
 
-        saveClassToBackend();
-        localStorage.setItem(storageKey, JSON.stringify(storedItems));
-
+        localStorage.setItem(storageKey, JSON.stringify(storedItems));//local
+        SaveClassToBackend();
         navigate('/homebrew-editor/classes');
     };
 
-    const saveClassToBackend = async () => {
+    const SaveClassToBackend = async () => {
         try {
-            const dataToSend = { ...classData };
-            delete dataToSend.imageFile;
-
-            const url = mode === 'create' ? "https://localhost:7174/api/homebrew/create" : `https://localhost:7174/api/homebrew/${classData.id}`;
-            const method = mode === 'create' ? "POST" : "PUT";
-
-            const response = await fetch(url, {
-                method: method,
+            const response = await fetch("https://localhost:7174/api/homebrew/create", {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(dataToSend),
+                body: JSON.stringify(classData),
             });
 
-            // --- IMPORTANT FIX START ---
-            if (response.status === 204) {
-                // No content to parse for 204 No Content responses (typically for PUT/DELETE)
-                console.log(`Operation successful (status: ${response.status}). No content returned.`);
-                return null; // Or return a success indicator like true, or the classData.id if relevant
-            }
-            // --- IMPORTANT FIX END ---
-
             if (!response.ok) {
-                const errorText = await response.text();
-                try {
-                    // Attempt to parse error text as JSON, if it is.
-                    const errorJson = JSON.parse(errorText);
-                    console.error("Backend error details:", errorJson);
-                    throw new Error(`Server error: ${JSON.stringify(errorJson)}`);
-                } catch (parseError) {
-                    // If it's not JSON, throw the raw text.
-                    throw new Error(`Server error: ${errorText} (Status: ${response.status})`);
-                }
+                const error = await response.text();
+                throw new Error(`Server error: ${error}`);
             }
 
-            // Only attempt to parse JSON if the response status is OK (e.g., 200, 201) and not 204
             const result = await response.json();
-
-            // This part `return result.characterId;` seems specific to a character creation flow.
-            // For class creation/update, you might want to return the whole `result` object,
-            // or just `classData.id` for updates, or a success flag.
-            // Adjust this return value based on what your calling code expects.
-            if (mode === 'create' && result && result.id) {
-                return result.id; // Assuming the backend returns the created ClassData object with its ID
-            } else if (mode === 'update') {
-                return classData.id; // For updates, you already know the ID, or can return null/true for success
-            }
-            return result; // Fallback
-
+            return result.characterId;
         } catch (err) {
-            console.error("Error saving class to backend:", err);
-            // You might want to display a user-friendly error message here
-            throw err; // Re-throw the error for the calling code to handle
+            console.error("Error saving class:", err);
+            throw err;
         }
-    };
-
+    }
 
     return (
         <main className="character-creation-page homebrew-creation-page">

@@ -98,376 +98,376 @@ public class SkuffrollDbContext : DbContext
         modelBuilder.Entity<LobbyChat>().ToTable("lobby_chat");
         modelBuilder.Entity<PrivateMessage>().ToTable("private_messages");
 
-        modelBuilder.Entity<UserFriend>().HasKey(uf => new { uf.UserId, uf.FriendId });
-        modelBuilder.Entity<ClassSkill>().HasKey(cs => new { cs.ClassId, cs.SkillId });
-        modelBuilder.Entity<FirstItemSet>().HasKey(fis => new { fis.ClassId, fis.ItemId });
-        modelBuilder.Entity<SecondItemSet>().HasKey(sis => new { sis.ClassId, sis.ItemId });
-        modelBuilder.Entity<WeaponTagWeapon>().HasKey(wtw => new { wtw.WeaponId, wtw.WeaponTagId });
-        modelBuilder.Entity<RaceFeature>().HasKey(rf => new { rf.RaceId, rf.FeatureId });
-        modelBuilder.Entity<SubraceFeature>().HasKey(sf => new { sf.SubraceId, sf.FeatureId });
-        modelBuilder.Entity<BackgroundItem>().HasKey(bi => new { bi.BackgroundId, bi.ItemId });
-        modelBuilder.Entity<BackgroundFeature>().HasKey(bf => new { bf.BackgroundId, bf.FeatureId });
-        modelBuilder.Entity<BackgroundSkill>().HasKey(bs => new { bs.BackgroundId, bs.SkillId });
-        modelBuilder.Entity<CharacterFeature>().HasKey(cf => new { cf.CharacterId, cf.FeatureId });
-        modelBuilder.Entity<CharacterInventory>().HasKey(ci => new { ci.CharacterId, ci.ItemId });
-        modelBuilder.Entity<UserCharacter>().HasKey(uc => new { uc.UserId, uc.CharacterId });
-        modelBuilder.Entity<UserCampaign>().HasKey(uc => new { uc.UserId, uc.CampaignId });
-        modelBuilder.Entity<UserInLobby>().HasKey(uil => new { uil.LobbyId, uil.UserId });
-        modelBuilder.Entity<LobbyChat>().HasKey(lc => new { lc.CampaignId, lc.MessageId });
-        modelBuilder.Entity<PrivateMessage>().HasKey(pm => new { pm.ReceiverId, pm.MessageId });
-        modelBuilder.Entity<Squad>().HasKey(s => s.EventId);
-        modelBuilder.Entity<Location>().HasKey(l => l.EventId);
-        modelBuilder.Entity<QuestEvent>().HasKey(qe => new { qe.EventId, qe.QuestId });
+        modelBuilder.Entity<UserFriend>().HasKey(uf => new { uf.user_id, uf.friend_id });
+        modelBuilder.Entity<ClassSkill>().HasKey(cs => new { cs.class_id, cs.skill_id });
+        modelBuilder.Entity<FirstItemSet>().HasKey(fis => new { fis.class_id, fis.item_id });
+        modelBuilder.Entity<SecondItemSet>().HasKey(sis => new { sis.class_id, sis.item_id });
+        modelBuilder.Entity<WeaponTagWeapon>().HasKey(wtw => new { wtw.weapon_id, wtw.weapon_tag_id });
+        modelBuilder.Entity<RaceFeature>().HasKey(rf => new { rf.race_id, rf.feature_id });
+        modelBuilder.Entity<SubraceFeature>().HasKey(sf => new { sf.subrace_id, sf.feature_id });
+        modelBuilder.Entity<BackgroundItem>().HasKey(bi => new { bi.background_id, bi.item_id });
+        modelBuilder.Entity<BackgroundFeature>().HasKey(bf => new { bf.background_id, bf.feature_id });
+        modelBuilder.Entity<BackgroundSkill>().HasKey(bs => new { bs.background_id, bs.skill_id });
+        modelBuilder.Entity<CharacterFeature>().HasKey(cf => new { cf.character_id, cf.feature_id });
+        modelBuilder.Entity<CharacterInventory>().HasKey(ci => new { ci.character_id, ci.item_id });
+        modelBuilder.Entity<UserCharacter>().HasKey(uc => new { uc.user_id, uc.character_id });
+        modelBuilder.Entity<UserCampaign>().HasKey(uc => new { uc.user_id, uc.campaign_id });
+        modelBuilder.Entity<UserInLobby>().HasKey(uil => new { uil.lobby_id, uil.user_id });
+        modelBuilder.Entity<LobbyChat>().HasKey(lc => new { lc.campaign_id, lc.message_id });
+        modelBuilder.Entity<PrivateMessage>().HasKey(pm => new { pm.receiver_id, pm.message_id });
+        modelBuilder.Entity<Squad>().HasKey(s => s.event_id);
+        modelBuilder.Entity<Location>().HasKey(l => l.event_id);
+        modelBuilder.Entity<QuestEvent>().HasKey(qe => new { qe.event_id, qe.quest_id });
 
         modelBuilder.Entity<Squad>()
             .HasOne(s => s.Event)
             .WithOne(e => e.Squad)
-            .HasForeignKey<Squad>(s => s.EventId);
+            .HasForeignKey<Squad>(s => s.event_id);
 
         modelBuilder.Entity<Location>()
             .HasOne(l => l.Event)
             .WithOne(e => e.Location)
-            .HasForeignKey<Location>(l => l.EventId);
+            .HasForeignKey<Location>(l => l.event_id);
 
         modelBuilder.Entity<Character>()
             .HasOne(c => c.User)
             .WithMany(u => u.Characters)
-            .HasForeignKey(c => c.UserId)
+            .HasForeignKey(c => c.user_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserCharacter>()
             .HasOne(uc => uc.User)
             .WithMany(u => u.UserCharacters)
-            .HasForeignKey(uc => uc.UserId)
+            .HasForeignKey(uc => uc.user_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserCharacter>()
             .HasOne(uc => uc.Character)
             .WithMany(c => c.UserCharacters)
-            .HasForeignKey(uc => uc.CharacterId)
+            .HasForeignKey(uc => uc.character_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserFriend>()
             .HasOne(uf => uf.User)
             .WithMany(u => u.UserFriends)
-            .HasForeignKey(uf => uf.UserId)
+            .HasForeignKey(uf => uf.user_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserFriend>()
             .HasOne(uf => uf.Friend)
             .WithMany(u => u.FriendOfUsers)
-            .HasForeignKey(uf => uf.FriendId)
+            .HasForeignKey(uf => uf.friend_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Lobby>()
             .HasOne(l => l.Host)
             .WithMany(u => u.HostedLobbies)
-            .HasForeignKey(l => l.HostId)
+            .HasForeignKey(l => l.host_id)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<UserInLobby>()
             .HasOne(uil => uil.User)
             .WithMany(u => u.UsersInLobby)
-            .HasForeignKey(uil => uil.UserId)
+            .HasForeignKey(uil => uil.user_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserInLobby>()
             .HasOne(uil => uil.Lobby)
             .WithMany(l => l.UsersInLobby)
-            .HasForeignKey(uil => uil.LobbyId)
+            .HasForeignKey(uil => uil.lobby_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Message>()
             .HasOne(m => m.User)
             .WithMany(u => u.Messages)
-            .HasForeignKey(m => m.UserId)
+            .HasForeignKey(m => m.user_id)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<PrivateMessage>()
             .HasOne(pm => pm.Receiver)
             .WithMany(u => u.PrivateMessagesReceived)
-            .HasForeignKey(pm => pm.ReceiverId)
+            .HasForeignKey(pm => pm.receiver_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<PrivateMessage>()
             .HasOne(pm => pm.Message)
             .WithMany(m => m.PrivateMessages)
-            .HasForeignKey(pm => pm.MessageId)
+            .HasForeignKey(pm => pm.message_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Character>()
             .HasOne(c => c.Class)
             .WithMany(cl => cl.Characters)
-            .HasForeignKey(c => c.ClassId)
+            .HasForeignKey(c => c.class_id)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<ClassSkill>()
             .HasOne(cs => cs.Class)
             .WithMany(cl => cl.ClassSkills)
-            .HasForeignKey(cs => cs.ClassId)
+            .HasForeignKey(cs => cs.class_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ClassSkill>()
             .HasOne(cs => cs.Skill)
             .WithMany(s => s.ClassSkills)
-            .HasForeignKey(cs => cs.SkillId)
+            .HasForeignKey(cs => cs.skill_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<FirstItemSet>()
             .HasOne(fis => fis.Class)
             .WithMany(cl => cl.FirstItemSets)
-            .HasForeignKey(fis => fis.ClassId)
+            .HasForeignKey(fis => fis.class_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<FirstItemSet>()
             .HasOne(fis => fis.Item)
             .WithMany(i => i.FirstItemSets)
-            .HasForeignKey(fis => fis.ItemId)
+            .HasForeignKey(fis => fis.item_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<SecondItemSet>()
             .HasOne(sis => sis.Class)
             .WithMany(cl => cl.SecondItemSets)
-            .HasForeignKey(sis => sis.ClassId)
+            .HasForeignKey(sis => sis.class_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<SecondItemSet>()
             .HasOne(sis => sis.Item)
             .WithMany(i => i.SecondItemSets)
-            .HasForeignKey(sis => sis.ItemId)
+            .HasForeignKey(sis => sis.item_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<LevelingTable>()
             .HasOne(lt => lt.Class)
             .WithMany(cl => cl.LevelingTables)
-            .HasForeignKey(lt => lt.ClassId)
+            .HasForeignKey(lt => lt.class_id)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FirstTalent).WithMany().HasForeignKey(lt => lt.FirstTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SecondTalent).WithMany().HasForeignKey(lt => lt.SecondTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.ThirdTalent).WithMany().HasForeignKey(lt => lt.ThirdTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FourthTalent).WithMany().HasForeignKey(lt => lt.FourthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FifthTalent).WithMany().HasForeignKey(lt => lt.FifthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SixthTalent).WithMany().HasForeignKey(lt => lt.SixthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SeventhTalent).WithMany().HasForeignKey(lt => lt.SeventhTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.EighthTalent).WithMany().HasForeignKey(lt => lt.EighthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.NinthTalent).WithMany().HasForeignKey(lt => lt.NinthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.TenthTalent).WithMany().HasForeignKey(lt => lt.TenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.EleventhTalent).WithMany().HasForeignKey(lt => lt.EleventhTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.TwelfthTalent).WithMany().HasForeignKey(lt => lt.TwelfthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.ThirteenthTalent).WithMany().HasForeignKey(lt => lt.ThirteenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FourteenthTalent).WithMany().HasForeignKey(lt => lt.FourteenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FifteenthTalent).WithMany().HasForeignKey(lt => lt.FifteenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SixteenthTalent).WithMany().HasForeignKey(lt => lt.SixteenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SeventeenthTalent).WithMany().HasForeignKey(lt => lt.SeventeenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.EighteenthTalent).WithMany().HasForeignKey(lt => lt.EighteenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.NineteenthTalent).WithMany().HasForeignKey(lt => lt.NineteenthTalentId).OnDelete(DeleteBehavior.SetNull);
-        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.TwentiethTalent).WithMany().HasForeignKey(lt => lt.TwentiethTalentId).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FirstTalent).WithMany().HasForeignKey(lt => lt.first_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SecondTalent).WithMany().HasForeignKey(lt => lt.second_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.ThirdTalent).WithMany().HasForeignKey(lt => lt.third_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FourthTalent).WithMany().HasForeignKey(lt => lt.fourth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FifthTalent).WithMany().HasForeignKey(lt => lt.fifth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SixthTalent).WithMany().HasForeignKey(lt => lt.sixth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SeventhTalent).WithMany().HasForeignKey(lt => lt.seventh_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.EighthTalent).WithMany().HasForeignKey(lt => lt.eighth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.NinthTalent).WithMany().HasForeignKey(lt => lt.ninth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.TenthTalent).WithMany().HasForeignKey(lt => lt.tenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.EleventhTalent).WithMany().HasForeignKey(lt => lt.eleventh_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.TwelfthTalent).WithMany().HasForeignKey(lt => lt.twelfth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.ThirteenthTalent).WithMany().HasForeignKey(lt => lt.thirteenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FourteenthTalent).WithMany().HasForeignKey(lt => lt.fourteenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.FifteenthTalent).WithMany().HasForeignKey(lt => lt.fifteenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SixteenthTalent).WithMany().HasForeignKey(lt => lt.sixteenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.SeventeenthTalent).WithMany().HasForeignKey(lt => lt.seventeenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.EighteenthTalent).WithMany().HasForeignKey(lt => lt.eighteenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.NineteenthTalent).WithMany().HasForeignKey(lt => lt.nineteenth_talent_id).OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<LevelingTable>().HasOne(lt => lt.TwentiethTalent).WithMany().HasForeignKey(lt => lt.twentieth_talent_id).OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<Character>()
             .HasOne(c => c.Race)
             .WithMany(r => r.Characters)
-            .HasForeignKey(c => c.RaceId)
+            .HasForeignKey(c => c.race_id)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<RaceFeature>()
             .HasOne(rf => rf.Race)
             .WithMany(r => r.RaceFeatures)
-            .HasForeignKey(rf => rf.RaceId)
+            .HasForeignKey(rf => rf.race_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<RaceFeature>()
             .HasOne(rf => rf.Feature)
             .WithMany(f => f.RaceFeatures)
-            .HasForeignKey(rf => rf.FeatureId)
+            .HasForeignKey(rf => rf.feature_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Subrace>()
             .HasOne(s => s.Race)
             .WithMany(r => r.Subraces)
-            .HasForeignKey(s => s.RaceId)
+            .HasForeignKey(s => s.race_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Character>()
             .HasOne(c => c.Subrace)
             .WithMany(sr => sr.Characters)
-            .HasForeignKey(c => c.SubraceId)
+            .HasForeignKey(c => c.subrace_id)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<SubraceFeature>()
             .HasOne(sf => sf.Subrace)
             .WithMany(sr => sr.SubraceFeatures)
-            .HasForeignKey(sf => sf.SubraceId)
+            .HasForeignKey(sf => sf.subrace_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<SubraceFeature>()
             .HasOne(sf => sf.Feature)
             .WithMany(f => f.SubraceFeatures)
-            .HasForeignKey(sf => sf.FeatureId)
+            .HasForeignKey(sf => sf.feature_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Character>()
             .HasOne(c => c.Background)
             .WithMany(bg => bg.Characters)
-            .HasForeignKey(c => c.BackgroundId)
+            .HasForeignKey(c => c.background_id)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<BackgroundItem>()
             .HasOne(bi => bi.Background)
             .WithMany(bg => bg.BackgroundItems)
-            .HasForeignKey(bi => bi.BackgroundId)
+            .HasForeignKey(bi => bi.background_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BackgroundItem>()
             .HasOne(bi => bi.Item)
             .WithMany(i => i.BackgroundItems)
-            .HasForeignKey(bi => bi.ItemId)
+            .HasForeignKey(bi => bi.item_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BackgroundFeature>()
             .HasOne(bf => bf.Background)
             .WithMany(bg => bg.BackgroundFeatures)
-            .HasForeignKey(bf => bf.BackgroundId)
+            .HasForeignKey(bf => bf.background_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BackgroundFeature>()
             .HasOne(bf => bf.Feature)
             .WithMany(f => f.BackgroundFeatures)
-            .HasForeignKey(bf => bf.FeatureId)
+            .HasForeignKey(bf => bf.feature_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BackgroundSkill>()
             .HasOne(bs => bs.Background)
             .WithMany(bg => bg.BackgroundSkills)
-            .HasForeignKey(bs => bs.BackgroundId)
+            .HasForeignKey(bs => bs.background_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BackgroundSkill>()
             .HasOne(bs => bs.Skill)
             .WithMany(s => s.BackgroundSkills)
-            .HasForeignKey(bs => bs.SkillId)
+            .HasForeignKey(bs => bs.skill_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CharacterAbilityScore>()
             .HasOne(cas => cas.Character)
             .WithMany(c => c.AbilityScores)
-            .HasForeignKey(cas => cas.CharacterId)
+            .HasForeignKey(cas => cas.character_id)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<CharacterSkill>().HasKey(cs => cs.Id);
+        modelBuilder.Entity<CharacterSkill>().HasKey(cs => cs.id);
         modelBuilder.Entity<CharacterSkill>()
             .HasOne(cs => cs.Character)
             .WithMany(c => c.CharacterSkills)
-            .HasForeignKey(cs => cs.CharacterId)
+            .HasForeignKey(cs => cs.character_id)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<CharacterSavingThrow>().HasKey(cst => cst.Id);
+        modelBuilder.Entity<CharacterSavingThrow>().HasKey(cst => cst.id);
         modelBuilder.Entity<CharacterSavingThrow>()
             .HasOne(cst => cst.Character)
             .WithMany(c => c.CharacterSavingThrows)
-            .HasForeignKey(cst => cst.CharacterId)
+            .HasForeignKey(cst => cst.character_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CharacterFeature>()
             .HasOne(cf => cf.Character)
             .WithMany(c => c.CharacterFeatures)
-            .HasForeignKey(cf => cf.CharacterId)
+            .HasForeignKey(cf => cf.character_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CharacterFeature>()
             .HasOne(cf => cf.Feature)
             .WithMany(f => f.CharacterFeatures)
-            .HasForeignKey(cf => cf.FeatureId)
+            .HasForeignKey(cf => cf.feature_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CharacterInventory>()
             .HasOne(ci => ci.Character)
             .WithMany(c => c.CharacterInventories)
-            .HasForeignKey(ci => ci.CharacterId)
+            .HasForeignKey(ci => ci.character_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<CharacterInventory>()
             .HasOne(ci => ci.Item)
             .WithMany(i => i.CharacterInventories)
-            .HasForeignKey(ci => ci.ItemId)
+            .HasForeignKey(ci => ci.item_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserCampaign>()
             .HasOne(uc => uc.Campaign)
             .WithMany(cmp => cmp.UserCampaigns)
-            .HasForeignKey(uc => uc.CampaignId)
+            .HasForeignKey(uc => uc.campaign_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserCampaign>()
             .HasOne(uc => uc.User)
             .WithMany(u => u.UserCampaigns)
-            .HasForeignKey(uc => uc.UserId)
+            .HasForeignKey(uc => uc.user_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<LoreEntry>()
             .HasOne(le => le.Campaign)
             .WithMany(cmp => cmp.LoreEntries)
-            .HasForeignKey(le => le.CampaignId)
+            .HasForeignKey(le => le.campaign_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Event>()
             .HasOne(e => e.Campaign)
             .WithMany(cmp => cmp.Events)
-            .HasForeignKey(e => e.CampaignId)
+            .HasForeignKey(e => e.campaign_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Quest>()
             .HasOne(q => q.Campaign)
             .WithMany(cmp => cmp.Quests)
-            .HasForeignKey(q => q.CampaignId)
+            .HasForeignKey(q => q.campaign_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Lobby>()
             .HasOne(l => l.Campaign)
             .WithMany(cmp => cmp.Lobbies)
-            .HasForeignKey(l => l.CampaignId)
+            .HasForeignKey(l => l.campaign_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<LobbyChat>()
             .HasOne(lc => lc.Campaign)
             .WithMany(cmp => cmp.LobbyChats)
-            .HasForeignKey(lc => lc.CampaignId)
+            .HasForeignKey(lc => lc.campaign_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<LobbyChat>()
             .HasOne(lc => lc.Message)
             .WithMany(m => m.LobbyChats)
-            .HasForeignKey(lc => lc.MessageId)
+            .HasForeignKey(lc => lc.message_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<QuestEvent>()
             .HasOne(qe => qe.Event)
             .WithMany(e => e.QuestEvents)
-            .HasForeignKey(qe => qe.EventId)
+            .HasForeignKey(qe => qe.event_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<QuestEvent>()
             .HasOne(qe => qe.Quest)
             .WithMany(q => q.QuestEvents)
-            .HasForeignKey(qe => qe.QuestId)
+            .HasForeignKey(qe => qe.quest_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<QuestEvent>()
             .HasOne(qe => qe.Location)
             .WithMany()
-            .HasForeignKey(qe => qe.LocationId)
+            .HasForeignKey(qe => qe.location_id)
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<WeaponTagWeapon>()
             .HasOne(wtw => wtw.Weapon)
             .WithMany(w => w.WeaponTagWeapons)
-            .HasForeignKey(wtw => wtw.WeaponId)
+            .HasForeignKey(wtw => wtw.weapon_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<WeaponTagWeapon>()
             .HasOne(wtw => wtw.WeaponTag)
             .WithMany(wt => wt.WeaponTagWeapons)
-            .HasForeignKey(wtw => wtw.WeaponTagId)
+            .HasForeignKey(wtw => wtw.weapon_tag_id)
             .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);

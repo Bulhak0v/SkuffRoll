@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 
 namespace WebClient.Models.ClassDataNamespace;
@@ -6,116 +7,69 @@ public class ClassData
 {
     public string name { get; set; }
     public string? image { get; set; }
-    //public string? imageFile { get; set; }
     public string description { get; set; }
-
     public StartingEquipment startingEquipment { get; set; }
-    public Proficiencies proficiencies { get; set; }
+    public Proficiences proficiencies { get; set; }
     public SkillChoices skillChoices { get; set; }
     public HitPoints hitPoints { get; set; }
-    public List<FeatureEntry> featuresTable { get; set; }
 
-    public static Class ClassDataConvert(ClassData classData)
+    public List<FeatureData> FeaturesTable { get; set; }
+
+    public Class ConvertToClass(DbContext _context)
     {
-        Class newClass = new Class();
-
-        newClass.Name = classData.name;
-        newClass.Description = classData.description;
-
-        newClass.Picture = classData.image ?? string.Empty; // Default to empty string if image is null
-
-        if (classData.proficiencies != null)
+        var result = new Class
         {
-            newClass.ArmorProficiency = classData.proficiencies.armor ?? string.Empty;
-            newClass.WeaponProficiency = classData.proficiencies.weapons ?? string.Empty;
-            newClass.ToolProficiency = classData.proficiencies.tools ?? string.Empty;
-            newClass.AmountOfProficientSkills = classData.proficiencies.skills; // This is a direct int mapping
-        }
-        else
-        {
-            newClass.ArmorProficiency = string.Empty;
-            newClass.WeaponProficiency = string.Empty;
-            newClass.ToolProficiency = string.Empty;
-            newClass.AmountOfProficientSkills = 0;
-        }
+            name = this.name,
+            description = this.description,
+            picture = this.image ?? "",
+            armor_proficiency = this.proficiencies.armor,
+            weapon_proficiency = this.proficiencies.weapons,
+            tool_proficiency = this.proficiencies.tools,
+            is_homebrew = true,
+            is_original_content = false,
+            starting_hp = int.TryParse(this.hitPoints.hpAt1stLevel, out int hp) ? hp : 0,
+            amount_of_proficient_skills = int.TryParse(this.skillChoices.count, out int count) ? count : 0,
 
-        if (classData.proficiencies != null && !string.IsNullOrWhiteSpace(classData.proficiencies.savingThrows))
-        {
-            var savingThrowsArray = classData.proficiencies.savingThrows
-                                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                                    .Select(s => s.Trim())
-                                    .ToList();
-
-            newClass.FirstSavingThrow = savingThrowsArray.FirstOrDefault() ?? string.Empty;
-            newClass.SecondSavingThrow = savingThrowsArray.Skip(1).FirstOrDefault() ?? string.Empty;
-        }
-        else
-        {
-            newClass.FirstSavingThrow = string.Empty;
-            newClass.SecondSavingThrow = string.Empty;
-        }
-
-
-        if (classData.hitPoints != null && !string.IsNullOrWhiteSpace(classData.hitPoints.hpAt1stLevel))
-        {
-            int parsedHp;
-            if (int.TryParse(classData.hitPoints.hpAt1stLevel, out parsedHp))
-            {
-                newClass.StartingHp = parsedHp;
-            }
-            else
-            {
-                newClass.StartingHp = 0; // Default or log error if parsing fails
-            }
-        }
-        else
-        {
-            newClass.StartingHp = 0; // Default if hitPoints or hpAt1stLevel is null/empty
-        }
-
-        newClass.IsOriginalContent = false;
-        newClass.IsHomebrew = true;
-
-        return newClass;
+            first_saving_throw = this.proficiencies.savingThrows.Split(',').ElementAtOrDefault(0)?.Trim() ?? "",
+            second_saving_throw = this.proficiencies.savingThrows.Split(',').ElementAtOrDefault(1)?.Trim() ?? ""
+        };
+        return result;
     }
 
 }
 
 public class StartingEquipment
 {
-    public List<OptionSet> optionSets { get; set; }
+    public List<OptionSets> optionSets { get; set; }
     public List<string> @fixed { get; set; }
 }
 
-public class OptionSet
+public class OptionSets
 {
     public string setA { get; set; }
     public string setB { get; set; }
 }
 
-public class Proficiencies
+public class Proficiences
 {
     public string armor { get; set; }
     public string weapons { get; set; }
     public string tools { get; set; }
     public string savingThrows { get; set; }
-    public int skills { get; set; }
 }
 
 public class SkillChoices
 {
-    public int count { get; set; }
+    public string count { get; set; }
     public List<string> options { get; set; }
 }
 
 public class HitPoints
 {
-    public string hitDice { get; set; }
     public string hpAt1stLevel { get; set; }
-    public string hpAtHigherLevels { get; set; }
 }
 
-public class FeatureEntry
+public class FeatureData
 {
     public string level { get; set; }
     public string feature { get; set; }

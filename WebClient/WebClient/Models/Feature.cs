@@ -2,9 +2,9 @@ namespace WebClient.Models;
 
 public class Feature
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public int id { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
 
     public ICollection<RaceFeature> RaceFeatures { get; set; } = new List<RaceFeature>();
     public ICollection<SubraceFeature> SubraceFeatures { get; set; } = new List<SubraceFeature>();

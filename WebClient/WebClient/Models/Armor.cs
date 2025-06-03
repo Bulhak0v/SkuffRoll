@@ -2,8 +2,8 @@ namespace WebClient.Models;
 
 public class Armor : Item
 {
-    public int ArmorClass { get; set; }
-    public int StrengthRequirement { get; set; }
-    public bool DisadvantageOnStealth { get; set; }
-    public string Type { get; set; }
+    public int armor_class { get; set; }
+    public int strength_requirement { get; set; }
+    public bool disadvantage_on_stealth { get; set; }
+    public string type { get; set; }
 }

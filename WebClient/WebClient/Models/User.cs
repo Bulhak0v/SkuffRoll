@@ -2,11 +2,11 @@ namespace WebClient.Models;
 
 public class User
 {
-    public int Id { get; set; }
-    public string Login { get; set; }
-    public string Password { get; set; }
-    public string Email { get; set; }
-    public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
+    public int id { get; set; }
+    public string login { get; set; }
+    public string password { get; set; }
+    public string email { get; set; }
+    public DateTime registration_date { get; set; } = DateTime.UtcNow;
 
     public ICollection<UserFriend> UserFriends { get; set; } = new List<UserFriend>();
     public ICollection<UserFriend> FriendOfUsers { get; set; } = new List<UserFriend>();

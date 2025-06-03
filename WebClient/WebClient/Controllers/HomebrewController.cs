@@ -1,171 +1,238 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Required for EF Core methods like .ToListAsync(), .FirstOrDefaultAsync()
-using System; // Required for Guid (if you decide to generate IDs on backend)
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
-using System.Linq; // Required for .FirstOrDefault() and .Any()
-using System.Threading.Tasks; // Required for async/await
-using WebClient.Models; // Your DbContext and potentially other models
+using System.Linq;
+using System.Security.Cryptography.Xml;
+using System.Text.Json;
+using System.Threading.Tasks;
+using WebClient.Models;
 using WebClient.Models.ClassDataNamespace;
-
 namespace WebClient.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] // This means the base URL for this controller will be /api/homebrew
+    [Route("api/[controller]")]
     public class HomebrewController : ControllerBase
     {
         private readonly SkuffrollDbContext _context;
 
         public HomebrewController(SkuffrollDbContext context)
         {
-            _context = context; // Dependency Injection: EF Core will provide an instance of your DbContext
-        }
-
-        [HttpGet] // GET: api/homebrew
-        public async Task<ActionResult<IEnumerable<ClassData>>> GetAllHomebrewClasses()
-        {
-            // Fetch all homebrew classes from the database asynchronously
-            var homebrewClasses = await _context.Classes.ToListAsync();
-            return Ok(homebrewClasses);
+            _context = context;
         }
 
 
-        [HttpGet("{id}")] // GET: api/homebrew/{id}
-        public async Task<ActionResult<ClassData>> GetHomebrewClassById(int id)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateClass([FromBody] JsonElement input)
         {
-            // Find the class in the database by its ID asynchronously
-            var foundClass = await _context.Classes.FirstOrDefaultAsync(c => c.Id == id);
-
-            if (foundClass == null)
+            Class newClass = new Class();
+            ClassData classData = null;
+            try
             {
-                return NotFound($"Homebrew Class with ID '{id}' not found."); // Return 404 if not found
+                string temp = input.GetRawText();
+                classData = input.Deserialize<ClassData>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                if (classData == null)
+                {
+                    Console.WriteLine("Deserialization resulted in a null ClassData object.");
+                    return BadRequest("Invalid input format or empty data provided.");
+                }
             }
-            return Ok(foundClass); // Return 200 OK with the class data
-        }
-
-
-        [HttpPost("create")] // POST: api/homebrew/create
-        public async Task<ActionResult<ClassData>> CreateHomebrewClass([FromBody] ClassData classData)
-        {
-            if (!ModelState.IsValid)
+            catch (JsonException ex)
             {
+                Console.Error.WriteLine($"JSON Deserialization Error: {ex.Message}");
+                Console.Error.WriteLine($"Path: {ex.Path}, Line: {ex.LineNumber}, Byte: {ex.BytePositionInLine}");
+                return BadRequest($"Invalid JSON format or data type mismatch: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"An unexpected error occurred during deserialization: {ex.Message}");
+                return StatusCode(500, "An unexpected error occurred while processing your request.");
+            }
+
+            if (!TryValidateModel(classData))
+            {
+                Console.WriteLine("ClassData object failed validation.");
                 return BadRequest(ModelState);
             }
 
-            Class temp = ClassData.ClassDataConvert(classData);
-            _context.Classes.Add(temp);
+            if (!string.IsNullOrEmpty(classData.name) && await _context.Classes.AnyAsync(c => c.name == classData.name))
+            {
+                Console.WriteLine($"Conflict: Class with name '{classData.name}' already exists.");
+                return Conflict($"Homebrew Class with name '{classData.name}' already exists.");
+            }
+
+            newClass = classData.ConvertToClass(_context);
+
+            foreach (string skillName in classData.skillChoices.options)
+            {
+                var skill = _context.Skills.FirstOrDefault(s => s.name == skillName);
+                if (skill != null)
+                {
+                    ClassSkill ck = new ClassSkill
+                    {
+                        class_id = newClass.id,
+                        skill_id = skill.id
+                    };
+                    _context.ClassSkills.Add(ck);
+                }
+            }
+
+
+            foreach (OptionSets name in classData.startingEquipment.optionSets)
+            {
+                var item1 = _context.Items.FirstOrDefault(i => i.name == name.setA);
+                var item2 = _context.Items.FirstOrDefault(i => i.name == name.setB);
+
+                if (item1 != null)
+                {
+                    var new1Item = new FirstItemSet
+                    {
+                        item_id = item1.id,
+                        class_id = newClass.id
+                    };
+                    _context.FirstItemSets.Add(new1Item);
+                }
+
+                if (item2 != null)
+                {
+                    var new2Item = new SecondItemSet
+                    {
+                        item_id = item2.id,
+                        class_id = newClass.id
+                    };
+                    _context.SecondItemSets.Add(new2Item);
+                }
+            }
+
+
+            _context.Classes.Add(newClass);
 
             try
             {
-                // Save changes to the database asynchronously
                 await _context.SaveChangesAsync();
+                var dict = new Dictionary<int, int>();
+                int count = 1;
+                foreach (FeatureData level in classData.FeaturesTable)
+                {
+                    if (!string.IsNullOrEmpty(level.feature))
+                    {
+                        Feature newFeature = new Feature();
+                        newFeature.name = level.feature;
+                        _context.Features.Add(newFeature);
+                        dict.Add(count, newFeature.id);
+                    }
+                    count++;
+                }
+                var newLeveling = new LevelingTable();
+                foreach (var x in dict.Keys)
+                {
+                    switch (x)
+                    {
+                        case 1:
+                            newLeveling.first_talent_id = dict[x];
+                            break;
+                        case 2:
+                            newLeveling.second_talent_id = dict[x];
+                            break;
+                        case 3:
+                            newLeveling.third_talent_id = dict[x];
+                            break;
+                        case 4:
+                            newLeveling.fourth_talent_id= dict[x];
+                            break;
+                        case 5:
+                            newLeveling.fifth_talent_id = dict[x];
+                            break;
+                        case 6:
+                            newLeveling.sixth_talent_id = dict[x];
+                            break;
+                        case 7:
+                            newLeveling.seventh_talent_id = dict[x];
+                            break;
+                        case 8:
+                            newLeveling.eighth_talent_id = dict[x];
+                            break;
+                        case 9:
+                            newLeveling.ninth_talent_id = dict[x];
+                            break;
+                        case 10:
+                            newLeveling.tenth_talent_id = dict[x];
+                            break;
+                        case 11:
+                            newLeveling.eleventh_talent_id = dict[x];
+                            break;
+                        case 12:
+                            newLeveling.twelfth_talent_id = dict[x];
+                            break;
+                        case 13:
+                            newLeveling.thirteenth_talent_id = dict[x];
+                            break;
+                        case 14:
+                            newLeveling.fourteenth_talent_id = dict[x];
+                            break;
+                        case 15:
+                            newLeveling.fifteenth_talent_id= dict[x];
+                            break;
+                        case 16:
+                            newLeveling.sixteenth_talent_id = dict[x];
+                            break;
+                        case 17:
+                            newLeveling.seventeenth_talent_id= dict[x];
+                            break;
+                        case 18:
+                            newLeveling.eighteenth_talent_id = dict[x];
+                            break;
+                        case 19:
+                            newLeveling.nineteenth_talent_id = dict[x];
+                            break;
+                        case 20:
+                            newLeveling.twentieth_talent_id = dict[x];
+                            break;
+                        
+                    }
+                }
+                newLeveling.class_id = newClass.id;
+                _context.LevelingTables.Add(newLeveling);
+                await _context.SaveChangesAsync();
+                Console.WriteLine($"Successfully saved class '{classData.name}' to the database.");
             }
             catch (DbUpdateException ex)
             {
-                // Log the exception details for debugging
-                Console.Error.WriteLine($"Error creating homebrew class: {ex.Message}");
+                Console.Error.WriteLine($"Database Update Error creating homebrew class: {ex.Message}");
                 if (ex.InnerException != null)
                 {
                     Console.Error.WriteLine($"Inner exception: {ex.InnerException.Message}");
                 }
-                return StatusCode(500, "An error occurred while saving the new homebrew class to the database.");
+                return StatusCode(500, "An error occurred while saving the new homebrew class to the database. Please check server logs for details.");
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"An unexpected error occurred during save: {ex.Message}");
+                return StatusCode(500, "An unexpected error occurred. Please try again or contact support.");
             }
 
-
-            // Return 201 Created status, with the newly created class data
-            // and a Location header pointing to the GET endpoint for this new resource.
-            return CreatedAtAction(nameof(GetHomebrewClassById), new { id = classData.id }, classData);
+            return CreatedAtAction(
+                nameof(GetClassByName),
+                new { name = classData.name },
+                classData
+            );
         }
 
-        /// <summary>
-        /// Updates an existing homebrew class in the database.
-        /// </summary>
-        /// <param name="id">The ID of the class to update (from the URL).</param>
-        /// <param name="updatedClass">The updated ClassData object.</param>
-        /// <returns>NoContent if successful, NotFound if the class doesn't exist, or BadRequest on mismatch.</returns>
-        [HttpPut("{id}")] // PUT: api/homebrew/{id}
-        [HttpPut("{id}")] // PUT: api/homebrew/{id}
-        public async Task<IActionResult> UpdateHomebrewClass([FromBody] ClassData updatedClass) // ID should be string here too
+        [HttpGet("{name}")]
+        public async Task<ActionResult<ClassData>> GetClassByName(string name)
         {
-            // Validate the incoming model state
-            if (!ModelState.IsValid)
+            var foundClassData = await _context.Classes.FirstOrDefaultAsync(c => c.name == name);
+            if (foundClassData == null)
             {
-                return BadRequest(ModelState);
+                return NotFound($"Class with Name '{name}' not found.");
             }
-
-            // Corrected: Use _context.HomebrewClasses and 'id' of type string
-            var existingClass = await _context.Classes.AsNoTracking().FirstOrDefaultAsync(c => c.Name == );
-
-            if (existingClass == null)
-            {
-                return NotFound($"Homebrew Class with ID '{id}' not found."); // Return 404 if not found
-            }
-
-            // Corrected: Use _context.HomebrewClasses.Update()
-            _context.Classes.Update((ClassData.ClassDataConvert(updatedClass)));
-
-            try
-            {
-                await _context.SaveChangesAsync(); // Save changes to the database
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // This block handles cases where the entity might have been deleted by another process
-                // Corrected: Use _context.HomebrewClasses
-                if (!HomebrewClassExists(id))
-                {
-                    return NotFound($"Homebrew Class with ID '{id}' not found after concurrency check.");
-                }
-                else
-                {
-                    throw; // Something else went wrong, re-throw the exception
-                }
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.Error.WriteLine($"Error updating homebrew class: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Console.Error.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-                return StatusCode(500, "An error occurred while updating the homebrew class in the database.");
-            }
-
-            return NoContent(); // Return 204 No Content for a successful update
+            return Ok(foundClassData);
         }
 
-        [HttpDelete("{id}")] // DELETE: api/homebrew/{id}
-        public async Task<IActionResult> DeleteHomebrewClass(int id)
+        private bool HomebrewClassExists(string name)
         {
-            // Find the class to delete
-            var existingClass = await _context.Classes.FirstOrDefaultAsync(c => c.Id == id);
-            if (existingClass == null)
-            {
-                return NotFound($"Homebrew Class with ID '{id}' not found."); // Return 404 if not found
-            }
-
-            // Remove the class from the DbContext's tracking
-            _context.Classes.Remove(existingClass);
-
-            try
-            {
-                await _context.SaveChangesAsync(); // Save changes to the database
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.Error.WriteLine($"Error deleting homebrew class: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Console.Error.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-                return StatusCode(500, "An error occurred while deleting the homebrew class from the database.");
-            }
-
-            return NoContent(); 
-        }
-
-        private bool HomebrewClassExists(int id)
-        {
-            return _context.Classes.Any(e => e.Id == id);
+            return _context.Classes.Any(e => e.name == name);
         }
     }
 }

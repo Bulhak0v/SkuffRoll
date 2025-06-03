@@ -2,14 +2,14 @@ namespace WebClient.Models;
 
 public class CharacterSavingThrow
 {
-    public int Id { get; set; }
-    public int CharacterId { get; set; }
+    public int id { get; set; }
+    public int character_id { get; set; }
     public Character Character { get; set; }
 
-    public bool Str { get; set; } = false;
-    public bool Dex { get; set; } = false;
-    public bool Con { get; set; } = false;
-    public bool Int { get; set; } = false;
-    public bool Wis { get; set; } = false;
-    public bool Cha { get; set; } = false;
+    public bool str { get; set; } = false;
+    public bool dex { get; set; } = false;
+    public bool con { get; set; } = false;
+    public bool @int { get; set; } = false;
+    public bool wis { get; set; } = false;
+    public bool cha { get; set; } = false;
 }
