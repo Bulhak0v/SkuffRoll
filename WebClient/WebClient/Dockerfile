@@ -1,26 +1,59 @@
-# Stage 1: Build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# --- Етап 1: Збірка Фронтенду (Node.js) ---
+# Використовуємо офіційний образ Node.js. 'alpine' - це легка версія Linux.
+# Замініть '20' на вашу версію Node.js, якщо потрібно.
+FROM node:20-alpine AS build-frontend
 WORKDIR /app
 
-# Копіюємо csproj та solution файли (вони у цій папці, бо контекст - WebClient\WebClient)
+# Копіюємо package.json та package-lock.json для кешування залежностей
+COPY wwwroot/package*.json ./
+
+# Встановлюємо залежності. 'npm ci' швидше та надійніше для CI/CD,
+# оскільки використовує package-lock.json.
+RUN npm ci
+
+# Копіюємо решту файлів фронтенду
+COPY wwwroot/ ./
+
+# Запускаємо скрипт збірки фронтенду (зазвичай 'build' у package.json)
+# Ця команда створить оптимізовані JS/CSS файли, зазвичай у папці 'dist' або 'build'.
+RUN npm run build
+
+
+# --- Етап 2: Збірка Бекенду (ASP.NET) ---
+# Використовуємо офіційний образ .NET SDK.
+# Замініть '8.0' на вашу версію .NET.
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-backend
+WORKDIR /source
+
+# Копіюємо файл проєкту для відновлення NuGet пакетів (кешування)
 COPY WebClient.csproj .
-COPY WebClient.sln .
+RUN dotnet restore "WebClient.csproj"
 
-# Відновлення залежностей
-RUN dotnet restore WebClient.csproj
-
-# Копіюємо увесь код проекту (усі файли і папки у цій теці)
+# Копіюємо решту файлів проєкту
 COPY . .
 
-# Збірка проєкту в Release
-RUN dotnet publish -c Release -o out
+# Копіюємо зібрані файли фронтенду з попереднього етапу
+# ВАЖЛИВО: Шлях '/app/build' залежить від конфігурації вашого фронтенд-скрипта.
+# Подивіться у вашому webpack.config.js або аналогічному файлі, куди відбувається збірка.
+# Популярні варіанти: '/app/dist', '/app/build'.
+# Ми копіюємо їх у wwwroot, звідки ASP.NET їх буде роздавати.
+COPY --from=build-frontend /app/build ./wwwroot 
 
-# Stage 2: Runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Публікуємо проєкт у режимі Release.
+# '--no-restore' використовується, бо ми вже відновили пакети.
+RUN dotnet publish "WebClient.csproj" -c Release -o /app/publish --no-restore
+
+
+# --- Етап 3: Фінальний образ для запуску ---
+# Використовуємо легкий образ ASP.NET Runtime, він не містить SDK.
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# Копіюємо результати збірки з попереднього етапу
-COPY --from=build /app/out .
+# Копіюємо скомпільований проєкт з етапу збірки
+COPY --from=build-backend /app/publish .
 
-EXPOSE 80
+# Вказуємо порт, який слухає додаток (за замовчуванням 8080 для .NET 8)
+EXPOSE 8080
+
+# Точка входу для запуску додатку
 ENTRYPOINT ["dotnet", "WebClient.dll"]
