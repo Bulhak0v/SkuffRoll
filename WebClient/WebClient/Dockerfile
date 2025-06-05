@@ -1,29 +1,19 @@
+FROM node:20 AS builder
 
-FROM node:20 AS react-build
-WORKDIR /app
+WORKDIR /WebClient
 
-COPY wwwroot/src ./src
-COPY wwwroot/package.json .
-COPY wwwroot/package-lock.json .
+COPY wwwroot/package*.json ./
 
 RUN npm install
+
+COPY wwwroot/ .
+
 RUN npm run build
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY *.csproj ./
-RUN dotnet restore
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 
-COPY . ./
-
-COPY --from=react-build /app/build ./wwwroot
-
-RUN dotnet publish -c Release -o /app/publish
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/publish ./
 
-ENV ASPNETCORE_URLS=http://+:$PORT
-EXPOSE 80
-ENTRYPOINT ["dotnet", "WebClient.dll"]
+COPY --from=builder /WebClient/build ./wwwroot/public/dist
+
+ENTRYPOINT ["dotnet", "YourAppName.dll"]
