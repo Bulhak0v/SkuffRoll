@@ -28,7 +28,7 @@ const RegisterPage = () => {
         }
 
         try {
-            const response = await fetch('api/auth/register', { // Assuming your registration endpoint is /api/auth/register
+            const response = await fetch('https://localhost:7174/api/auth/register', { // Assuming your registration endpoint is /api/auth/register
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
