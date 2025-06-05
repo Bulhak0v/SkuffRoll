@@ -194,7 +194,7 @@ const CreateEditHomebrewClassPage = ({ mode = 'create' }) => {
 
     const SaveClassToBackend = async () => {
         try {
-            const response = await fetch("https://localhost:7174/api/homebrew/create", {
+            const response = await fetch("https://localhost:7174/api/homebrewclass/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

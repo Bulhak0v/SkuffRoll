@@ -42,8 +42,62 @@ const HomebrewListPage = ({ itemType }) => {
     setItems(updatedItems);
     localStorage.setItem(storageKey, JSON.stringify(updatedItems));
     setIsDeleteModalOpen(false);
-    setItemToDelete(null);
+      setItemToDelete(null);
+      if (itemType == "classes") {
+          deleteClassFromBackend();
+      }
+      else if (itemType == "races") {
+          deleteRaceFromBackend();
+      }
   };
+
+    const deleteClassFromBackend = async () =>{
+        try {
+            const response = await fetch("https://localhost:7174/api/homebrewclass/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(itemToDelete),
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Server error: ${error}`);
+            }
+
+            const result = await response.json();
+            return result.characterId;
+        } catch (err) {
+            console.error("Error saving class:", err);
+            throw err;
+        }
+    }
+
+    const deleteRaceFromBackend = async () => {
+        try {
+            const response = await fetch("https://localhost:7174/api/homebrewrace/delete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(itemToDelete),
+            });
+
+            if (response.ok) { 
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await response.json(); 
+                    console.log('Race deleted successfully:', data.message);
+                } else {
+                    console.log('Race deleted successfully, no JSON response expected.');
+                }
+                const errorText = await response.text(); 
+            }
+        } catch (error) {
+            alert('Race deleted successfully');
+        }
+    }
 
   if (isLoading) {
     return <div className="homebrew-list-page"><h2>Loading custom {itemType}...</h2></div>;
