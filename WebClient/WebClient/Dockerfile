@@ -1,20 +1,22 @@
-FROM node:20 AS builder
+# Вказуємо базовий образ SDK для збірки
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-WORKDIR /WebClient
-RUN ls -la /WebClient/wwwroot
+# Копіюємо всі файли проекту в робочу директорію
+COPY . .
 
-COPY ./wwwroot ./wwwroot
+# Відновлюємо залежності (restore) для проекту у поточній папці
+RUN dotnet restore "WebClient.csproj"
 
-RUN npm install
+# Будуємо проект в релізній конфігурації
+RUN dotnet publish "WebClient.csproj" -c Release -o /app/publish
 
-COPY wwwroot/ .
-
-RUN npm run build
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
-
+# Вказуємо базовий образ ASP.NET Core для запуску
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 
-COPY --from=builder /WebClient/build ./wwwroot/public/dist
+# Копіюємо збудовану апку з попереднього кроку
+COPY --from=build /app/publish .
 
-ENTRYPOINT ["dotnet", "YourAppName.dll"]
+# Вказуємо команду запуску додатка
+ENTRYPOINT ["dotnet", "WebClient.dll"]
