@@ -1,13 +1,12 @@
-// src/components/LoginPage.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import woodBackground from '../../assets/images/general/wood-texture.jpg';
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const [identifier, setIdentifier] = useState(''); // Use 'identifier' to match backend 'LoginRequest'
+    const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(''); // State to hold login error messages
+    const [error, setError] = useState('');
 
     useEffect(() => {
         document.body.style.backgroundImage = `url(${woodBackground})`;
@@ -17,7 +16,6 @@ const LoginPage = () => {
         document.body.style.backgroundAttachment = 'fixed';
         document.body.style.minHeight = '100vh';
         return () => {
-            // Clean up body styles when component unmounts (e.g., navigating away)
             document.body.style.backgroundImage = 'none';
             document.body.style.backgroundSize = '';
             document.body.style.backgroundPosition = '';
@@ -29,39 +27,33 @@ const LoginPage = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(''); // Clear any previous errors
+        setError('');
 
         try {
-            // Send login request to your ASP.NET Core backend
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('https://localhost:7174/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ identifier, password }), // Ensure keys match backend's LoginRequest model
+                body: JSON.stringify({ identifier, password }),
             });
 
             if (response.ok) {
-                const data = await response.json();
-                // Assuming your backend returns { token: "...", message: "..." }
-                const token = data.token;
+                const userData = await response.json(); // Should include at least login and email
 
-                // Store the JWT token securely (localStorage is common for simpler apps, but consider HttpOnly cookies for more security)
-                localStorage.setItem('authToken', token);
+                // Save user data in sessionStorage
+                sessionStorage.setItem('currentUser', JSON.stringify(userData));
 
-                console.log("Login successful! Token stored:", token);
-                alert("Login successful!"); // User feedback
+                console.log("Login successful!", userData);
+                alert("Login successful!");
 
-                // Redirect to a protected page, e.g., the UserProfilePage or dashboard
-                navigate('/user-profile'); // Assuming /user-profile is the route for UserProfilePage
+                navigate('/profile');
             } else {
-                // Handle API errors (e.g., 401 Unauthorized, 400 Bad Request)
                 const errorData = await response.json();
                 setError(errorData.message || "Login failed. Please check your credentials.");
                 console.error('Login error:', errorData);
             }
         } catch (err) {
-            // Handle network errors (e.g., server unreachable)
             setError("An unexpected error occurred. Please try again later.");
             console.error('Network error during login:', err);
         }

@@ -12,7 +12,20 @@ namespace WebClient
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<SkuffrollDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontendDev",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:3000") // або "*" для всіх
+                              .AllowAnyMethod()
+                              .AllowAnyHeader();
+                    });
+            });
+
+            builder.Services.AddControllers();
 
             var app = builder.Build();
 
@@ -26,14 +39,13 @@ namespace WebClient
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
+            app.UseCors("AllowFrontendDev");
             app.UseAuthorization();
-
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+            app.MapControllers();
 
             app.Run();
         }

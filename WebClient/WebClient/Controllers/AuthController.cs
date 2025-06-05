@@ -5,6 +5,7 @@ using WebClient.Models;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace WebClient.Controllers
 {
@@ -20,31 +21,34 @@ namespace WebClient.Controllers
         }
 
         [HttpPost("register")] // This makes the route for this action /api/auth/register
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] JsonElement input)
         {
+            string jsonInputString = input.GetRawText();
+            RegisterRequest registerRequest = input.Deserialize<RegisterRequest>();
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
             // Check if user with this email or login already exists
-            if (await _context.Users.AnyAsync(u => u.email == request.Email))
+            if (await _context.Users.AnyAsync(u => u.email == registerRequest.email))
             {
                 return Conflict(new { message = "User with this email already exists." });
             }
 
-            if (await _context.Users.AnyAsync(u => u.login == request.Login))
+            if (await _context.Users.AnyAsync(u => u.login == registerRequest.login))
             {
                 return Conflict(new { message = "User with this username already exists." });
             }
 
             // Hash the password before saving
-            string hashedPassword = HashPassword(request.Password);
+            string hashedPassword = HashPassword(registerRequest.password);
 
             var newUser = new User
             {
-                email = request.Email,
-                login = request.Login,
+                email = registerRequest.email,
+                login = registerRequest.login,
                 password = hashedPassword, // Store the hashed password
                 registration_date = DateTime.UtcNow // Set registration date
             };
@@ -92,6 +96,41 @@ namespace WebClient.Controllers
                 }
                 return builder.ToString();
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Identifier) || string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { message = "Username/email and password are required." });
+            }
+
+            // Try to find the user by login or email
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.login == request.Identifier || u.email == request.Identifier);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid username/email or password." });
+            }
+
+            // Hash the provided password to compare
+            string hashedInputPassword = HashPassword(request.Password);
+
+            if (user.password != hashedInputPassword)
+            {
+                return Unauthorized(new { message = "Invalid username/email or password." });
+            }
+
+            // Successful login, return essential user info
+            return Ok(new
+            {
+                login = user.login,
+                email = user.email,
+                registrationDate = user.registration_date
+                // Optionally add: id, roles, or a JWT if needed later
+            });
         }
     }
 }
