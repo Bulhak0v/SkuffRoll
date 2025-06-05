@@ -1,8 +1,9 @@
 FROM node:20 AS builder
 
 WORKDIR /WebClient
+RUN ls -la /WebClient/wwwroot
 
-COPY wwwroot/package*.json ./
+COPY ./wwwroot ./wwwroot
 
 RUN npm install
 
