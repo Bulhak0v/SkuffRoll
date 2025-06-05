@@ -183,10 +183,31 @@ const CreateEditHomebrewRacePage = ({ mode = 'create' }) => {
       }
       storedItems.push(dataToSave);
     }
-    localStorage.setItem(storageKey, JSON.stringify(storedItems));
+      localStorage.setItem(storageKey, JSON.stringify(storedItems));
+      SaveRaceToBeckend();
     navigate('/homebrew-editor/races');
   };
 
+    const SaveRaceToBeckend = async () => {
+        try {
+            const response = await fetch("https://localhost:7174/api/homebrewrace/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(raceData),
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Server error: ${error}`);
+            }
+        }
+        catch (err) {
+            console.error("Error saving class:", err);
+            throw err;
+        }
+    }
 
   return (
     <main className="character-creation-page homebrew-creation-page">

@@ -15,30 +15,34 @@ const UserProfilePage = () => {
   const [campaignCount, setCampaignCount] = useState(0);
   const [characterCount, setCharacterCount] = useState(0);
 
-  const MOCK_USER = {
-    username: "John_Doe",
-    joinedDate: "01.01.2025",
-    profilePicture: null,
-  };
+  const storedUser = sessionStorage.getItem('currentUser');
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
-  useEffect(() => {
-    document.body.style.backgroundImage = `url(${woodBackground})`;
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition = 'center';
-    document.body.style.backgroundRepeat = 'no-repeat';
-    document.body.style.backgroundAttachment = 'fixed';
-    document.body.style.minHeight = '100vh';
+    useEffect(() => {
+        document.body.style.backgroundImage = `url(${woodBackground})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.style.minHeight = '100vh';
 
-    setUserData(MOCK_USER);
+        const storedUser = sessionStorage.getItem('currentUser');
+        if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setUserData({
+                username: parsedUser.login,
+                joinedDate: new Date(parsedUser.registration_date).toLocaleDateString(),
+                profilePicture: null, // TODO: Load profile picture if you have one
+            });
+        }
 
-    const storedCampaigns = JSON.parse(localStorage.getItem('skuffrollCampaigns') || '[]');
-    const createdCampaigns = storedCampaigns.filter(campaign => campaign && campaign.name);
-    setCampaignCount(createdCampaigns.length);
+        const storedCampaigns = JSON.parse(localStorage.getItem('skuffrollCampaigns') || '[]');
+        const createdCampaigns = storedCampaigns.filter(campaign => campaign && campaign.name);
+        setCampaignCount(createdCampaigns.length);
 
-    const storedCharacters = JSON.parse(localStorage.getItem('skuffrollCharacters') || '[]');
-    setCharacterCount(storedCharacters.length);
-
-  }, []);
+        const storedCharacters = JSON.parse(localStorage.getItem('skuffrollCharacters') || '[]');
+        setCharacterCount(storedCharacters.length);
+    }, []);
 
   const handleLogout = () => {
     navigate('/login');
