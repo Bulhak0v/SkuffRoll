@@ -2,44 +2,44 @@ namespace WebClient.Models;
 
 public class Character
 {
-    public int Id { get; set; }
-    public int? UserId { get; set; }
+    public int id { get; set; }
+    public int? user_id { get; set; }
     public User User { get; set; }
 
-    public string Name { get; set; }
-    public string Appearance { get; set; }
-    public string Alignment { get; set; }
-    public string Gender { get; set; }
-    public int Age { get; set; }
-    public decimal Weight { get; set; }
-    public decimal Height { get; set; }
-    public string Flaws { get; set; }
-    public string Bonds { get; set; }
-    public string Ideals { get; set; }
-    public string PersonalityTraits { get; set; }
-    public string Backstory { get; set; }
-    public int Hp { get; set; }
-    public int Level { get; set; } = 1;
+    public string name { get; set; }
+    public string appearance { get; set; }
+    public string alignment { get; set; }
+    public string gender { get; set; }
+    public int age { get; set; }
+    public decimal weight { get; set; }
+    public decimal height { get; set; }
+    public string flaws { get; set; }
+    public string bonds { get; set; }
+    public string ideals { get; set; }
+    public string personality_traits { get; set; }
+    public string backstory { get; set; }
+    public int hp { get; set; }
+    public int level { get; set; } = 1;
 
-    public int? ClassId { get; set; }
+    public int? class_id { get; set; }
     public Class Class { get; set; }
 
-    public int? RaceId { get; set; }
+    public int? race_id { get; set; }
     public Race Race { get; set; }
 
-    public int? SubraceId { get; set; }
+    public int? subrace_id { get; set; }
     public Subrace Subrace { get; set; }
 
-    public int? BackgroundId { get; set; }
+    public int? background_id { get; set; }
     public Background Background { get; set; }
 
-    public int Speed { get; set; }
-    public int ArmorClass { get; set; }
-    public string Image { get; set; }
-    public string ArmorProficiency { get; set; }
-    public string WeaponProficiency { get; set; }
-    public string VehicleProficiency { get; set; }
-    public string ToolProficiency { get; set; }
+    public int speed { get; set; }
+    public int armor_class { get; set; }
+    public string image { get; set; }
+    public string armor_proficiency { get; set; }
+    public string weapon_proficiency { get; set; }
+    public string vehicle_proficiency { get; set; }
+    public string tool_proficiency { get; set; }
 
     public ICollection<CharacterAbilityScore> AbilityScores { get; set; } = new List<CharacterAbilityScore>();
     public ICollection<CharacterSkill> CharacterSkills { get; set; } = new List<CharacterSkill>();

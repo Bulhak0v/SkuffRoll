@@ -2,12 +2,12 @@ namespace WebClient.Models;
 
 public class Item
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string Picture { get; set; }
-    public decimal Weight { get; set; }
-    public decimal Price { get; set; }
+    public int id { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
+    public string picture { get; set; }
+    public decimal weight { get; set; }
+    public decimal price { get; set; }
 
     public ICollection<FirstItemSet> FirstItemSets { get; set; } = new List<FirstItemSet>();
     public ICollection<SecondItemSet> SecondItemSets { get; set; } = new List<SecondItemSet>();

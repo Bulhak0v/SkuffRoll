@@ -2,15 +2,15 @@ namespace WebClient.Models;
 
 public class Event
 {
-    public int Id { get; set; }
-    public int CampaignId { get; set; }
+    public int id { get; set; }
+    public int campaign_id { get; set; }
     public Campaign Campaign { get; set; }
 
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string Icon { get; set; }
-    public decimal XCoordinate { get; set; }
-    public decimal YCoordinate { get; set; }
+    public string name { get; set; }
+    public string description { get; set; }
+    public string icon { get; set; }
+    public decimal x_coordinate { get; set; }
+    public decimal y_coordinate { get; set; }
 
     public Squad Squad { get; set; }
     public Location Location { get; set; }
