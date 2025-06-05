@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using WebClient.Models;
 
 namespace WebClient
@@ -19,7 +19,7 @@ namespace WebClient
                 options.AddPolicy("AllowFrontendDev",
                     policy =>
                     {
-                        policy.WithOrigins("http://localhost:3000") // àáî "*" äëÿ âñ³õ
+                        policy.WithOrigins("http://localhost:3000")
                               .AllowAnyMethod()
                               .AllowAnyHeader();
                     });

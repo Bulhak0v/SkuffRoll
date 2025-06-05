@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GridTile from '../components/GridTile';
 
 import tile1Img from '../assets/images/homepage/tile1.jpg';
@@ -21,10 +22,17 @@ const homepageTiles = [
 ];
 
 const Homepage = () => {
-  useEffect(() => {
-    document.body.classList.remove('game-manual-active');
-    document.body.style.backgroundImage = `url(${mountainBackground})`;
-  }, []);
+    const navigate = useNavigate();
+    useEffect(() => {
+        const sessionRedirectedToLogin = sessionStorage.getItem('skuffroll_session_redirected_to_login');
+
+        if (!sessionRedirectedToLogin) {
+            sessionStorage.setItem('skuffroll_session_redirected_to_login', 'true');
+            navigate('/login', { replace: true });
+        }
+        document.body.classList.remove('game-manual-active');
+        document.body.style.backgroundImage = `url(${mountainBackground})`;
+    }, []);
 
   return (
     <main className="homepage-main-content">
