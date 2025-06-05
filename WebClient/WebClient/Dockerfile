@@ -1,22 +1,25 @@
 # Вказуємо базовий образ SDK для збірки
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
 
-# Копіюємо всі файли проекту в робочу директорію
-COPY . .
-
-# Відновлюємо залежності (restore) для проекту у поточній папці
-RUN dotnet restore "WebClient.csproj"
-
-# Будуємо проект в релізній конфігурації
-RUN dotnet publish "WebClient.csproj" -c Release -o /app/publish
-
-# Вказуємо базовий образ ASP.NET Core для запуску
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# Встановлюємо робочий каталог всередині контейнера
 WORKDIR /app
 
-# Копіюємо збудовану апку з попереднього кроку
-COPY --from=build /app/publish .
+# Копіюємо csproj і solution файл у контейнер
+COPY WebClient/WebClient.csproj ./WebClient.csproj
+COPY WebClient/WebClient.sln ./WebClient.sln
 
-# Вказуємо команду запуску додатка
+# Відновлюємо залежності
+RUN dotnet restore WebClient.csproj
+
+# Копіюємо весь код у контейнер (враховуючи шлях)
+COPY WebClient/. ./ 
+
+# Збираємо проєкт
+RUN dotnet publish WebClient.csproj -c Release -o out
+
+# Створюємо runtime образ
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/out ./
+
 ENTRYPOINT ["dotnet", "WebClient.dll"]
