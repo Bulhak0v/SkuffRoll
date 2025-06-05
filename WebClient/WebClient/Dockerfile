@@ -1,8 +1,13 @@
 # --- Етап 1: Збірка Фронтенду (Node.js) ---
-# Використовуємо офіційний образ Node.js. 'alpine' - це легка версія Linux.
-# Замініть '20' на вашу версію Node.js, якщо потрібно.
 FROM node:20-alpine AS build-frontend
 WORKDIR /app
+
+# ==================== DEBUGGING ====================
+# Показуємо, що знаходиться в корені контейнера до копіювання
+RUN echo "--- Root directory listing in build-frontend stage ---" && ls -R /
+# Показуємо, що знаходиться в робочій директорії /app (зараз вона порожня)
+RUN echo "--- Workdir /app listing before copy ---" && ls -R .
+# ===================================================
 
 # Копіюємо package.json та package-lock.json для кешування залежностей
 COPY wwwroot/package*.json ./
@@ -14,18 +19,20 @@ RUN npm ci
 # Копіюємо решту файлів фронтенду
 COPY wwwroot/ ./
 
-# Запускаємо скрипт збірки фронтенду (зазвичай 'build' у package.json)
-# Ця команда створить оптимізовані JS/CSS файли, зазвичай у папці 'dist' або 'build'.
-RUN npm run build
+# ... (решта файлу без змін)
 
 
 # --- Етап 2: Збірка Бекенду (ASP.NET) ---
-# Використовуємо офіційний образ .NET SDK.
-# Замініть '8.0' на вашу версію .NET.
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-backend
 WORKDIR /source
 
+# ==================== DEBUGGING ====================
+# Показуємо вміст, який був скопійований з Git-репозиторію
+RUN echo "--- Listing build context in build-backend stage ---" && ls -R .
+# ===================================================
+
 # Копіюємо файл проєкту для відновлення NuGet пакетів (кешування)
+# Цей рядок, ймовірно, впаде, і лог вище покаже чому
 COPY WebClient.csproj .
 RUN dotnet restore "WebClient.csproj"
 
