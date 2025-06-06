@@ -4,6 +4,8 @@ import woodBackground from '../../assets/images/general/wood-texture.jpg';
 import { ReactComponent as TrashIcon } from '../../assets/icons/trash.svg';
 
 const CHARACTERS_PER_PAGE = 4;
+const currentUser = sessionStorage.getItem('currentUser');
+const parsedUser = JSON.parse(currentUser);
 
 const CharacterManagementPage = () => {
   const navigate = useNavigate();
@@ -14,14 +16,49 @@ const CharacterManagementPage = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [charToDelete, setCharToDelete] = useState(null);
 
-  useEffect(() => {
-    document.body.style.backgroundImage = `url(${woodBackground})`;
-    document.body.style.backgroundSize = 'cover';
+    useEffect(() => {
+        const fetchVisibleCharacterNames = async () => {
+            const login = parsedUser.login;
 
-    const storedCharacters = JSON.parse(localStorage.getItem('skuffrollCharacters') || '[]');
-    setAllCharacters(storedCharacters);
-    setIsLoading(false);
-  }, []);
+            if (!login) {
+                console.error("User not logged in.");
+                return;
+            }
+
+            try {
+                const response = await fetch("https://localhost:7174/api/character/get-visible-character-names", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ login }),
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch visible character names");
+                }
+
+                const visibleNames: string[] = await response.json();
+
+                const allStoredCharacters = JSON.parse(localStorage.getItem("skuffrollCharacters") || "[]");
+
+                const visibleCharacters = allStoredCharacters.filter((char: any) =>
+                    visibleNames.includes(char.name)
+                );
+
+                setAllCharacters(visibleCharacters);
+            } catch (error) {
+                console.error("Error fetching visible character names:", error);
+            }
+        };
+
+        const loadCharacters = async () => {
+            await fetchVisibleCharacterNames();
+            setIsLoading(false);
+        };
+
+        loadCharacters();
+    }, []);
 
   const totalPages = Math.ceil(allCharacters.length / CHARACTERS_PER_PAGE);
   const charactersOnCurrentPage = allCharacters.slice(
@@ -40,18 +77,31 @@ const CharacterManagementPage = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDeleteCharacter = () => {
-    if (!charToDelete) return;
-    const updatedCharacters = allCharacters.filter(char => char.id !== charToDelete.id);
-    setAllCharacters(updatedCharacters);
-    localStorage.setItem('skuffrollCharacters', JSON.stringify(updatedCharacters));
-    setIsDeleteModalOpen(false);
-    setCharToDelete(null);
+    const confirmDeleteCharacter = async () => {
+        if (!charToDelete) return;
 
-    if (charactersOnCurrentPage.length === 1 && currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
-  };
+        try {
+            const response = await fetch(`https://localhost:7174/api/character/delete/${charToDelete.name}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete character from the database.");
+            }
+
+            const updatedCharacters = allCharacters.filter(char => char.id !== charToDelete.id);
+            setAllCharacters(updatedCharacters);
+            localStorage.setItem('skuffrollCharacters', JSON.stringify(updatedCharacters));
+            setIsDeleteModalOpen(false);
+            setCharToDelete(null);
+
+            if (charactersOnCurrentPage.length === 1 && currentPage > 1) {
+                setCurrentPage(prev => prev - 1);
+            }
+        } catch (error) {
+            console.error("Error deleting character:", error);
+        }
+    };
 
   if (isLoading) {
     return (

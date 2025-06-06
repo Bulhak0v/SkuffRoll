@@ -55,7 +55,39 @@ const CampaignSlotsPage = () => {
     setCampaigns(newCampaigns);
     setIsModalOpen(false);
     setCurrentSlotIndex(null);
-  };
+    saveCharacterToBackend(name);
+    };
+
+    
+    const saveCharacterToBackend = async (name) => {
+        const currentUser = sessionStorage.getItem('currentUser');
+        const parsedUser = JSON.parse(currentUser);
+        const campaignDataWithLogin = {
+            name: name,
+            login: parsedUser.login,
+        };
+
+        try {
+            const response = await fetch("https://localhost:7174/api/campaign/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(campaignDataWithLogin)
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Server error: ${error}`);
+            }
+
+            const result = await response.json();
+            return result.campaignId;
+        } catch (err) {
+            console.error("Error saving campaign:", err)
+            throw err;
+        }
+    }
 
   const openDeleteModal = (index) => {
     setSlotToDeleteIndex(index);
@@ -67,13 +99,14 @@ const CampaignSlotsPage = () => {
     setSlotToDeleteIndex(null);
   };
 
-  const confirmDeleteCampaign = () => {
+  const confirmDeleteCampaign = async () => {
     if (slotToDeleteIndex === null) return;
 
     const newCampaigns = [...campaigns];
     if (newCampaigns[slotToDeleteIndex].mapImage && newCampaigns[slotToDeleteIndex].mapImage.startsWith('blob:')) {
         URL.revokeObjectURL(newCampaigns[slotToDeleteIndex].mapImage);
     }
+    await deleteCampaignFromDB(newCampaigns[slotToDeleteIndex].name)
     newCampaigns[slotToDeleteIndex] = {
       ...newCampaigns[slotToDeleteIndex],
       name: null,
@@ -82,6 +115,22 @@ const CampaignSlotsPage = () => {
     setCampaigns(newCampaigns);
     closeDeleteModal();
   };
+
+    const deleteCampaignFromDB = async (campaignToDelete) => {
+        if (!campaignToDelete) return;
+
+        try {
+            const response = await fetch(`https://localhost:7174/api/campaign/delete/${campaignToDelete}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete character from the database");
+            }
+        } catch (error) {
+            console.error("Error deleting campaigns:", error);
+        }
+    };
 
   return (
     <>

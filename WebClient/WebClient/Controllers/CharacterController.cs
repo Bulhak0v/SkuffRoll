@@ -25,16 +25,18 @@ namespace WebClient.Controllers
         {
             Character newCharacter = new Character();
             var jsonString = input.GetRawText();
-            CharData charData = input.Deserialize<CharData>();
+            CharDataWithLogin charDataWithLogin = input.Deserialize<CharDataWithLogin>();
+            CharData charData = charDataWithLogin.@char;
+            string userLogin = charDataWithLogin.login;
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
 
-
+            Class charClass;
             if (!string.IsNullOrWhiteSpace(charData.className))
             {
-                Class charClass = await _context.Classes.FirstOrDefaultAsync(c => c.name == charData.className);
+                charClass = await _context.Classes.FirstOrDefaultAsync(c => c.name == charData.className);
                 if (charClass == null) return BadRequest($"Class '{charData.className}' not found.");
                 newCharacter.class_id = charClass.id;
                 newCharacter.Class = null;
@@ -169,6 +171,12 @@ namespace WebClient.Controllers
             newCharacter.bonds = charData.story.bonds;
             newCharacter.ideals = charData.story.ideals;
             newCharacter.armor_class = 16;
+            newCharacter.armor_proficiency = charClass.armor_proficiency;
+            newCharacter.tool_proficiency = charClass.tool_proficiency;
+            newCharacter.weapon_proficiency = charClass.weapon_proficiency;
+            newCharacter.vehicle_proficiency = "-";
+            newCharacter.backstory = "-";
+            newCharacter.personality_traits = "-";
             _context.Characters.Add(newCharacter);
             await _context.SaveChangesAsync();
 
@@ -191,7 +199,7 @@ namespace WebClient.Controllers
             {
                 return BadRequest("Class not found during HP calculation");
             }
-
+            
             Subrace selectedSubrace = await _context.FindAsync<Subrace>(newCharacter.subrace_id);
             int hpSubraceBonus = 0;
             if (selectedSubrace != null && selectedSubrace.name == "Hill Dwarf")
@@ -213,6 +221,13 @@ namespace WebClient.Controllers
                 return BadRequest("Race not found during Speed asignment");
             }
             newCharacter.speed = selectedRace.speed;
+
+            int userId = _context.Users.FirstOrDefault(u => u.login == userLogin).id;
+            if (userId == null || userId == 0)
+            {
+                return BadRequest("UserID not found during user asignment");
+            }
+            newCharacter.user_id = userId;
 
             _context.Characters.Update(newCharacter);
             await _context.SaveChangesAsync();
@@ -352,6 +367,40 @@ namespace WebClient.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetCharacter), new { id = newCharacter.id });
+        }
+
+        [HttpPost("get-visible-character-names")]
+        public async Task<IActionResult> GetVisibleCharacterNames([FromBody] JsonElement input)
+        {
+            LoginData loginData = input.Deserialize<LoginData>();
+
+            int userId = _context.Users.FirstOrDefault(u => u.login == loginData.login).id;
+            if (userId == null || userId == 0)
+            {
+                return BadRequest("UserID not found during character search");
+            }
+
+            List<string> characters = await _context.Characters
+                .Where(c => c.user_id == userId)
+                .Select(c => c.name)
+                .ToListAsync();
+
+            return Ok(characters);
+        }
+
+        [HttpDelete("delete/{name}")]
+        public async Task<IActionResult> DeleteCharacter(string name)
+        {
+            Character character = await _context.Characters.FirstOrDefaultAsync(c => c.name == name);
+            if (character == null)
+            {
+                return NotFound("Character not found.");
+            }
+
+            _context.Characters.Remove(character);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
         [HttpGet("{id}")]

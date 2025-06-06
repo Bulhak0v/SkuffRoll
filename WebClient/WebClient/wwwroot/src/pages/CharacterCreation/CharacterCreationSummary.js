@@ -364,6 +364,14 @@ const CharacterCreationSummary = () => {
     charData.backgroundToolProficiencies
     );
 
+    const currentUser = sessionStorage.getItem('currentUser'); 
+    const parsedUser = JSON.parse(currentUser);
+
+    const charDataWithLogin = {
+        char: charData,
+        login: parsedUser.login,
+    };
+
     const saveCharacterToBackend = async () => {
         try {
             const response = await fetch("https://localhost:7174/api/character/create", {
@@ -371,7 +379,7 @@ const CharacterCreationSummary = () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(charData),
+                body: JSON.stringify(charDataWithLogin),
             });
 
             if (!response.ok) {
