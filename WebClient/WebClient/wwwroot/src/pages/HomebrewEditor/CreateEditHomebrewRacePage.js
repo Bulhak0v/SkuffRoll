@@ -190,7 +190,7 @@ const CreateEditHomebrewRacePage = ({ mode = 'create' }) => {
 
     const SaveRaceToBeckend = async () => {
         try {
-            const response = await fetch("https://localhost:7174/api/homebrewrace/create", {
+            const response = await fetch("/api/homebrewrace/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

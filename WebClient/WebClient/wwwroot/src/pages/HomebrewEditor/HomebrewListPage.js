@@ -53,7 +53,7 @@ const HomebrewListPage = ({ itemType }) => {
 
     const deleteClassFromBackend = async () =>{
         try {
-            const response = await fetch("https://localhost:7174/api/homebrewclass/delete", {
+            const response = await fetch("/api/homebrewclass/delete", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

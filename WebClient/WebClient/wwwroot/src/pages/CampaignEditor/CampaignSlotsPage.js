@@ -57,7 +57,6 @@ const CampaignSlotsPage = () => {
     setCurrentSlotIndex(null);
     saveCharacterToBackend(name);
     };
-
     
     const saveCharacterToBackend = async (name) => {
         const currentUser = sessionStorage.getItem('currentUser');
@@ -85,6 +84,29 @@ const CampaignSlotsPage = () => {
             return result.campaignId;
         } catch (err) {
             console.error("Error saving campaign:", err)
+            throw err;
+        }
+    }
+
+    const SaveCampaignSlotToBackend = async () => {
+        try {
+            const response = await fetch("https://localhost:7174/api/campaignslots/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(campaigns),
+            });
+
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Server error: ${error}`);
+            }
+
+            const result = await response.json();
+            return result.characterId;
+        } catch (err) {
+            console.error("Error saving class:", err);
             throw err;
         }
     }

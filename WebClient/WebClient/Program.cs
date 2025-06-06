@@ -37,6 +37,7 @@ namespace WebClient
                 app.UseHsts();
             }
 
+            app.UseDefaultFiles();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();
@@ -46,7 +47,7 @@ namespace WebClient
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapControllers();
-
+            app.MapFallbackToFile("index.html");
             app.Run();
         }
     }
