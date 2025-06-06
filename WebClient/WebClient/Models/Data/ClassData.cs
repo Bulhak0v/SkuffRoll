@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace WebClient.Models.ClassDataNamespace;
 
 public class ClassData
 {
     public string name { get; set; }
+    [JsonIgnore]
     public string? image { get; set; }
     public string description { get; set; }
     public StartingEquipment startingEquipment { get; set; }
@@ -21,7 +23,7 @@ public class ClassData
         {
             name = this.name,
             description = this.description,
-            picture = this.image ?? "",
+            //picture = this.image ?? "",
             armor_proficiency = this.proficiencies.armor,
             weapon_proficiency = this.proficiencies.weapons,
             tool_proficiency = this.proficiencies.tools,
