@@ -366,7 +366,7 @@ const CharacterCreationSummary = () => {
 
     const saveCharacterToBackend = async () => {
         try {
-            const response = await fetch("https://localhost:7174/api/character/create", {
+            const response = await fetch("/api/character/create", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
