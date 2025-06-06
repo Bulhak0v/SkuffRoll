@@ -25,7 +25,7 @@ COPY WebClient/WebClient/ .
 # Копіюємо зібраний фронтенд з попереднього етапу
 # УВАГА: Залишаємо '/app/build' для перевірки. Якщо не спрацює,
 # будемо використовувати метод діагностики, який обговорювали.
-COPY --from=build-frontend /app/build ./wwwroot 
+COPY --from=build-frontend /app/build/ ./wwwroot
 
 RUN dotnet publish "WebClient.csproj" -c Release -o /app/publish --no-restore
 
