@@ -31,7 +31,7 @@ const UserProfilePage = () => {
             const parsedUser = JSON.parse(storedUser);
             setUserData({
                 username: parsedUser.login,
-                joinedDate: new Date(parsedUser.registration_date).toLocaleDateString(),
+                joinedDate: parsedUser.registration_date.toLocaleDateString(),
                 profilePicture: null, // TODO: Load profile picture if you have one
             });
         }
