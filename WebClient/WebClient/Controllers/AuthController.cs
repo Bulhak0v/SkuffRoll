@@ -128,7 +128,7 @@ namespace WebClient.Controllers
             {
                 login = user.login,
                 email = user.email,
-                registrationDate = user.registration_date
+                registrationDate = user.registration_date.ToLongDateString(),
                 // Optionally add: id, roles, or a JWT if needed later
             });
         }
