@@ -26,7 +26,7 @@ const CharacterManagementPage = () => {
             }
 
             try {
-                const response = await fetch("https://localhost:7174/api/character/get-visible-character-names", {
+                const response = await fetch("/api/character/get-visible-character-names", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -81,7 +81,7 @@ const CharacterManagementPage = () => {
         if (!charToDelete) return;
 
         try {
-            const response = await fetch(`https://localhost:7174/api/character/delete/${charToDelete.name}`, {
+            const response = await fetch(`/api/character/delete/${charToDelete.name}`, {
                 method: "DELETE",
             });
 
